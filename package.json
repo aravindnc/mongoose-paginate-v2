@@ -16,7 +16,17 @@
   "keywords": [
     "mongoose",
     "pagination",
-    "mongodb"
+    "plugin",
+    "mongodb",
+    "paginate",
+    "paging",
+    "next",
+    "prev",
+    "nextpage",
+    "prevpage",
+    "total",
+    "paginator",
+    "plugin"
   ],
   "author": "Aravind NC <aravind_n_c@yahoo.co.in> (http://imwebgangster.com)",
   "license": "MIT",
