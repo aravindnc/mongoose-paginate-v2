@@ -1,6 +1,6 @@
 {
   "name": "mongoose-paginate-v2",
-  "version": "1.1.01",
+  "version": "1.0.0",
   "description": "Mongoose custom pagination library.",
   "main": "index.js",
   "directories": {
