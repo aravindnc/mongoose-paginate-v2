@@ -1,0 +1,30 @@
+{
+  "name": "mongoose-paginate-v2",
+  "version": "1.1.01",
+  "description": "Mongoose custom pagination library.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aravindnc/mongoose-paginate-v2.git"
+  },
+  "keywords": [
+    "mongoose",
+    "pagination",
+    "mongodb"
+  ],
+  "author": "Aravind NC <aravind_n_c@yahoo.co.in> (http://imwebgangster.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aravindnc/mongoose-paginate-v2/issues"
+  },
+  "homepage": "https://github.com/aravindnc/mongoose-paginate-v2#readme",
+  "dependencies": {
+    "bluebird": "3.0.5"
+  }
+}
