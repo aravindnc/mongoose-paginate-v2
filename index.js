@@ -91,7 +91,7 @@ function paginate(query, options, callback) {
             var result = {
                 [labelDocs]:  data.docs,
                 [labelTotal]: data.count,
-                limit: limit
+                [labelLimit]: limit
             };
 
             if (offset !== undefined) {
