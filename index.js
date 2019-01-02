@@ -1,154 +1,158 @@
 /**
  * @param {Object}              [query={}]
  * @param {Object}              [options={}]
- * @param {Object|String}         [options.select]
- * @param {Object|String}         [options.sort]
- * @param {Object|String}         [options.customLabels]
- * @param {Object|}               [options.collation]
- * @param {Array|Object|String}   [options.populate]
- * @param {Boolean}               [options.lean=false]
- * @param {Boolean}               [options.leanWithId=true]
- * @param {Number}                [options.offset=0] - Use offset or page to set skip position
- * @param {Number}                [options.page=1]
- * @param {Number}                [options.limit=10]
+ * @param {Object|String}       [options.select]
+ * @param {Object|String}       [options.sort]
+ * @param {Object|String}       [options.customLabels]
+ * @param {Object|}             [options.collation]
+ * @param {Array|Object|String} [options.populate]
+ * @param {Boolean}             [options.lean=false]
+ * @param {Boolean}             [options.leanWithId=true]
+ * @param {Number}              [options.offset=0] - Use offset or page to set skip position
+ * @param {Number}              [options.page=1]
+ * @param {Number}              [options.limit=10]
  * @param {Function}            [callback]
  *
  * @returns {Promise}
  */
 
 function paginate(query, options, callback) {
-    query   = query || {};
-    options = Object.assign({}, paginate.options, options);
-    options.customLabels = options.customLabels ? options.customLabels : {};
 
-    var select     = options.select;
-    var sort       = options.sort;
-    var collation  = options.collation || {};
-    var populate   = options.populate;
-    var lean       = options.lean || false;
-    var leanWithId = options.hasOwnProperty('leanWithId') ? options.leanWithId : true;
+  query = query || {};
+  options = Object.assign({}, paginate.options, options);
+  options.customLabels = options.customLabels ? options.customLabels : {};
 
-    var limit = options.hasOwnProperty('limit') ? options.limit : 10;
-    var skip, offset, page;
+  var defaultLimit = 10;
 
-    // Custom Labels
-    var labelTotal = options.customLabels.totalDocs ? options.customLabels.totalDocs : 'totalDocs';
-    var labelLimit = options.customLabels.limit ? options.customLabels.limit : 'limit';
-    var labelPage = options.customLabels.page ? options.customLabels.page : 'page';
-    var labelTotalPages = options.customLabels.totalPages ? options.customLabels.totalPages : 'totalPages';
-    var labelDocs = options.customLabels.docs ? options.customLabels.docs : 'docs';
-    var labelNextPage = options.customLabels.nextPage ? options.customLabels.nextPage : 'nextPage';
-    var labelPrevPage = options.customLabels.prevPage ? options.customLabels.prevPage : 'prevPage';
+  var select = options.select;
+  var sort = options.sort;
+  var collation = options.collation || {};
+  var populate = options.populate;
+  var lean = options.lean || false;
+  var leanWithId = options.hasOwnProperty('leanWithId') ? options.leanWithId : true;
+  var limit = options.hasOwnProperty('limit') ? options.limit : defaultLimit;
+  var skip;
+  var offset;
+  var page;
 
-    if (options.hasOwnProperty('offset')) {
-        offset = parseInt(options.offset);
-        skip   = offset;
-    } else if (options.hasOwnProperty('page')) {
-        page = parseInt(options.page);
-        skip = (page - 1) * limit;
-    } else {
-        offset = 0;
-        page   = 1;
-        skip   = offset;
-    }
+  // Custom Labels
+  var labelTotal = options.customLabels.totalDocs ? options.customLabels.totalDocs : 'totalDocs';
+  var labelLimit = options.customLabels.limit ? options.customLabels.limit : 'limit';
+  var labelPage = options.customLabels.page ? options.customLabels.page : 'page';
+  var labelTotalPages = options.customLabels.totalPages ? options.customLabels.totalPages : 'totalPages';
+  var labelDocs = options.customLabels.docs ? options.customLabels.docs : 'docs';
+  var labelNextPage = options.customLabels.nextPage ? options.customLabels.nextPage : 'nextPage';
+  var labelPrevPage = options.customLabels.prevPage ? options.customLabels.prevPage : 'prevPage';
 
-    const count = this.countDocuments(query).exec()
+  if (options.hasOwnProperty('offset')) {
+    offset = parseInt(options.offset);
+    skip = offset;
+  } else if (options.hasOwnProperty('page')) {
+    page = parseInt(options.page);
+    skip = (page - 1) * limit;
+  } else {
+    offset = 0;
+    page = 1;
+    skip = offset;
+  }
 
-    const model = this.find(query)
-    model.select(select)
-    model.sort(sort)    
-    model.lean(lean);
+  const count = this.countDocuments(query).exec();
 
-    // Hack for mongo < v3.4 
-    if(Object.keys(collation).length > 0) {
-        model.collation(collation);
-    }
-    
-    if (limit) {
-        model.skip(skip);
-        model.limit(limit);
-    }
+  const model = this.find(query);
+  model.select(select);
+  model.sort(sort);
+  model.lean(lean);
 
-    if (populate) {
-        model.populate(populate)
-    }
+  // Hack for mongo < v3.4
+  if (Object.keys(collation).length > 0) {
+    model.collation(collation);
+  }
 
-    let docs = model.exec();
+  if (limit) {
+    model.skip(skip);
+    model.limit(limit);
+  }
 
-    if (lean && leanWithId) {
-        docs = docs.then(function(docs) {
-            docs.forEach(function(doc) {
-                doc.id = String(doc._id);
-            });
-            return docs;
-        });
-    }
+  if (populate) {
+    model.populate(populate);
+  }
 
-    return Promise.all([count, docs])
-        .then(function(values) {
+  var docs = model.exec();
 
-            var result = {
-                [labelDocs]:  values[1],
-                [labelTotal]: values[0],
-                [labelLimit]: limit
-            };
+  if (lean && leanWithId) {
+    docs = docs.then(function (docs) {
+      docs.forEach(function (doc) {
+        doc.id = String(doc._id);
+      });
+      return docs;
+    });
+  }
 
-            if (offset !== undefined) {
-                result.offset = offset;
-            }
+  return Promise.all([count, docs])
+    .then(function (values) {
 
-            if (page !== undefined) {
+      var result = {
+        [labelDocs]: values[1],
+        [labelTotal]: values[0],
+        [labelLimit]: limit
+      };
 
-                const pages = Math.ceil(values[0] / limit) || 1;
+      if (offset !== undefined) {
+        result.offset = offset;
+      }
 
-                result.hasPrevPage = false;
-                result.hasNextPage = false;
+      if (page !== undefined) {
 
-                result[labelPage]  = page;
-                result[labelTotalPages] = pages;
-                             
-                // Set prev page
-                if(page > 1) {
-                    result.hasPrevPage = true;
-                    result[labelPrevPage] = (page - 1);                    
-                } else {
-                    result[labelPrevPage] = null;
-                }
+        const pages = Math.ceil(values[0] / limit) || 1;
 
-                // Set next page
-                if(page < pages) {
-                    result.hasNextPage = true;
-                    result[labelNextPage] = (page + 1);
-                } else {
-                    result[labelNextPage] = null;
-                }
-            }
-            
-            // Adding support for callbacks if specified.
-			if(callback) {
-                process.emitWarning(
-                    'mongoose-paginate-v2: callback will be removed from future versions, use promise instead.',
-                    'DeprecationWarning'
-                );
+        result.hasPrevPage = false;
+        result.hasNextPage = false;
 
-				return callback(null, result);
-			} else {
-				return Promise.resolve(result);
-			}
-        }).catch(function(error){ 
-			if(callback) {				
-				return callback(error);
-			} else {
-				return Promise.reject(error);
-			}
-		});
+        result[labelPage] = page;
+        result[labelTotalPages] = pages;
+
+        // Set prev page
+        if (page > 1) {
+          result.hasPrevPage = true;
+          result[labelPrevPage] = (page - 1);
+        } else {
+          result[labelPrevPage] = null;
+        }
+
+        // Set next page
+        if (page < pages) {
+          result.hasNextPage = true;
+          result[labelNextPage] = (page + 1);
+        } else {
+          result[labelNextPage] = null;
+        }
+      }
+
+      // Adding support for callbacks if specified.
+      if (callback) {
+        process.emitWarning(
+          'mongoose-paginate-v2: callback will be removed from future versions, use promise instead.',
+          'DeprecationWarning'
+        );
+
+        return callback(null, result);
+      } else {
+        return Promise.resolve(result);
+      }
+    }).catch(function (error) {
+      if (callback) {
+        return callback(error);
+      } else {
+        return Promise.reject(error);
+      }
+    });
 }
 
 /**
  * @param {Schema} schema
  */
-module.exports = function(schema) {
-    schema.statics.paginate = paginate;
+module.exports = function (schema) {
+  schema.statics.paginate = paginate;
 };
 
 module.exports.paginate = paginate;
