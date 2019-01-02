@@ -1,3 +1,5 @@
+var Promise = require('bluebird');
+
 /**
  * @param {Object}              [query={}]
  * @param {Object}              [options={}]
@@ -15,7 +17,6 @@
  *
  * @returns {Promise}
  */
-
 function paginate(query, options, callback) {
     query   = query || {};
     options = Object.assign({}, paginate.options, options);
@@ -23,7 +24,7 @@ function paginate(query, options, callback) {
 
     var select     = options.select;
     var sort       = options.sort;
-    var collation  = options.collation || {};
+    var collation  = options.collation;
     var populate   = options.populate;
     var lean       = options.lean || false;
     var leanWithId = options.hasOwnProperty('leanWithId') ? options.leanWithId : true;
@@ -44,7 +45,7 @@ function paginate(query, options, callback) {
         offset = options.offset;
         skip   = offset;
     } else if (options.hasOwnProperty('page')) {
-        page = parseInt(options.page);
+        page = options.page;
         skip = (page - 1) * limit;
     } else {
         offset = 0;
@@ -52,41 +53,44 @@ function paginate(query, options, callback) {
         skip   = offset;
     }
 
-    
-    const count = this.countDocuments(query).exec()
+    var promises = {
+        docs:  Promise.resolve([]),
+        count: this.countDocuments(query).exec()
+    };
 
-    const model = this.find(query)
-    model.select(select)
-    model.sort(sort)
-    model.collation(collation)
-    model.lean(lean);
-    
     if (limit) {
-        model.skip(skip);
-        model.limit(limit);
-    }
+        var query = this.find(query)
+                        .select(select)
+                        .sort(sort)
+                        .collation(collation)
+                        .skip(skip)
+                        .limit(limit)
+                        .lean(lean);
 
-    if (populate) {
-        model.populate(populate)
-    }
-
-    let docs = model.exec();
-
-    if (lean && leanWithId) {
-        docs = docs.then(function(docs) {
-            docs.forEach(function(doc) {
-                doc.id = String(doc._id);
+        if (populate) {
+            [].concat(populate).forEach(function(item) {
+                query.populate(item);
             });
-            return docs;
-        });
+        }
+
+        promises.docs = query.exec();
+
+        if (lean && leanWithId) {
+            promises.docs = promises.docs.then(function(docs) {
+                docs.forEach(function(doc) {
+                    doc.id = String(doc._id);
+                });
+
+                return docs;
+            });
+        }
     }
 
-    return Promise.all([count, docs])
-        .then(function(values) {
-
+    return Promise.props(promises)
+        .then(function(data) {
             var result = {
-                [labelDocs]:  values[1],
-                [labelTotal]: values[0],
+                [labelDocs]:  data.docs,
+                [labelTotal]: data.count,
                 [labelLimit]: limit
             };
 
@@ -96,7 +100,7 @@ function paginate(query, options, callback) {
 
             if (page !== undefined) {
 
-                const pages = Math.ceil(values[0] / limit) || 1;
+                const pages = Math.ceil(data.count / limit) || 1;
 
                 result.hasPrevPage = false;
                 result.hasNextPage = false;
@@ -121,8 +125,9 @@ function paginate(query, options, callback) {
                 }
             }
 
-            return Promise.resolve(result);
+            return result;
         })
+        .asCallback(callback);
 }
 
 /**
