@@ -7,6 +7,8 @@
 
 > A cursor based custom pagination library for [Mongoose](http://mongoosejs.com) with customizable labels.
 
+If you are looking for aggregate query pagination, use this one [mongoose-aggregate-paginate-v2](https://github.com/aravindnc/mongoose-aggregate-paginate-v2)
+
 ## Installation
 
 ```sh
