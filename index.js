@@ -56,7 +56,7 @@ function paginate(query, options, callback) {
     skip = offset;
   }
 
-  const count = this.estimatedDocumentCount(query).exec();
+  const count = this.countDocuments(query).exec();
 
   const model = this.find(query);
   model.select(select);
