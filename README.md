@@ -66,6 +66,7 @@ Promise fulfilled with object having properties:
 * `offset` {Number} - Only if specified or default `page`/`offset` values were used
 * `prevPage` {Number} - Previous page number if available or NULL
 * `nextPage` {Number} - Next page number if available or NULL
+* `pagingCounter` {Number} - The starting sl. number of first document.
 
 Please note that the above properties can be renamed by setting customLabel attribute.
 
@@ -90,6 +91,7 @@ Model.paginate({}, options, function(err, result) {
     // result.nextPage = 2
     // result.hasPrevPage = false
     // result.prevPage = null
+	// result.pagingCounter = 1
     
 });
 ```
@@ -105,6 +107,7 @@ Now developers can specify the return field names if they want. Below are the li
 * nextPage
 * prevPage
 * totalPages
+* pagingCounter
 
 You should pass the names of the properties you wish to changes using `customLabels` object in options.
 
@@ -119,6 +122,7 @@ const myCustomLabels = {
     nextPage: 'next',
     prevPage: 'prev',
     totalPages: 'pageCount'
+	pagingCounter: 'slNo'
 };
 
 const options = {
@@ -135,6 +139,7 @@ Model.paginate({}, options, function(err, result) {
     // result.pageCount = 10 [here totalPages becomes pageCount]
     // result.next = 2 [here nextPage becomes next]
     // result.prev = null [here prevPage becomes prev]
+	// result.slNo = 1 [here pagingCounter becomes slNo]
     
     // result.hasNextPage = true [not changeable]
     // result.hasPrevPage = false [not changeable]
@@ -212,7 +217,7 @@ Model.paginate().then(function(result) {
 ```
 
 ## Thanks
-This is a advanced version of mongoose-paginate forked from [Mongoose Paginate](https://www.npmjs.com/package/mongoose-paginate). Thanks to the initial author [Edward Hotchkiss](https://www.npmjs.com/~edwardhotchkiss)
+This is a advanced version of mongoose-paginate forked from [Mongoose Paginate](https://www.npmjs.com/package/mongoose-paginate). Credits to the initial author [Edward Hotchkiss](https://www.npmjs.com/~edwardhotchkiss)
 
 ## License
 [MIT](LICENSE)
