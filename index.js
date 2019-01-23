@@ -43,6 +43,7 @@ function paginate(query, options, callback) {
   var labelDocs = options.customLabels.docs ? options.customLabels.docs : 'docs';
   var labelNextPage = options.customLabels.nextPage ? options.customLabels.nextPage : 'nextPage';
   var labelPrevPage = options.customLabels.prevPage ? options.customLabels.prevPage : 'prevPage';
+  var labelPagingCounter = options.customLabels.pagingCounter ? options.customLabels.pagingCounter : 'pagingCounter';
 
   if (options.hasOwnProperty('offset')) {
     offset = parseInt(options.offset);
@@ -56,7 +57,7 @@ function paginate(query, options, callback) {
     skip = offset;
   }
 
-  const count = this.estimatedDocumentCount(query).exec();
+  const count = this.count(query).exec();
 
   const model = this.find(query);
   model.select(select);
@@ -110,6 +111,7 @@ function paginate(query, options, callback) {
 
         result[labelPage] = page;
         result[labelTotalPages] = pages;
+		result[labelPagingCounter] = ((page - 1) * limit) + 1;
 
         // Set prev page
         if (page > 1) {

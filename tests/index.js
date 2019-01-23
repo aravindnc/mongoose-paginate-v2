@@ -1,5 +1,3 @@
-// @author edwardhotchkiss
-
 'use strict';
 
 let mongoose = require('mongoose');
@@ -14,6 +12,7 @@ let Author = mongoose.model('Author', AuthorSchema);
 let BookSchema = new mongoose.Schema({
   title: String,
   date: Date,
+  price: Number,
   author: {
     type: mongoose.Schema.ObjectId,
     ref: 'Author'
@@ -31,136 +30,147 @@ describe('mongoose-paginate', function() {
   });
 
   before(function(done) {
-    mongoose.connection.db.dropDatabase(done);
+    mongoose.connection.db.dropDatabase(done);	
   });
 
   before(function() {
     let book, books = [];
     let date = new Date();
-    return Author.create({ name: 'Arthur Conan Doyle' }).then(function(author) {
+	
+	return Author.create({ name: 'Arthur Conan Doyle' }).then(function(author) {
       for (let i = 1; i <= 100; i++) {
         book = new Book({
-          title: 'Book #' + i,
-          date: new Date(date.getTime() + i),
-          author: author._id
+			// price: Math.floor(Math.random() * (1000 - 50) ) + 50,
+			price: (i*5) + i,
+			title: 'Book #' + i,
+			date: new Date(date.getTime() + i),
+			author: author._id
         });
         books.push(book);
       }
       return Book.create(books);
     });
+	
   });
 
   afterEach(function() {
-    delete mongoosePaginate.paginate.options;
+    
   });
 
-  it('returns promise', function() {
-    let promise = Book.paginate();
+  it('promise return test', function() {
+	let promise = Book.paginate();
     expect(promise.then).to.be.an.instanceof(Function);
   });
 
-  it('calls callback', function(done) {
-    Book.paginate({}, {}, function(err, result) {
+  it('callback test', function(done) {
+	  
+	Book.paginate({}, {}, function(err, result) {
       expect(err).to.be.null;
       expect(result).to.be.an.instanceOf(Object);
       done();
-    });
+    });	
   });
 
+  
   describe('paginates', function() {
-    it('with criteria', function() {
-      return Book.paginate({ title: 'Book #10' }).then((result) => {
-        console.log('with criteria logging ==================');
-        console.log('result:', result);
-        expect(result.docs).to.have.length(1);
-        expect(result.docs[0].title).to.equal('Book #10');
-      });
-    });
-    it('with default options (page=1, limit=10, lean=false)', function() {
-      return Book.paginate().then(function(result) {
+    it('with limit and page', function() {
+		var query = {
+				title: { 
+					$in : [/Book/i]
+				}
+		};
+		
+		var options = {
+			sort: { _id: 1}
+		};
+		
+      return Book.paginate(query, options ).then((result) => {		  
         expect(result.docs).to.have.length(10);
-        expect(result.docs[0]).to.be.an.instanceof(mongoose.Document);
-        expect(result.totalDocs).to.equal(100);
-        expect(result.limit).to.equal(10);
-        expect(result.page).to.equal(1);
-        expect(result.totalPages).to.equal(10);
-        expect(result.offset).to.equal(0);
+        expect(result.docs[0].title).to.equal('Book #1');
+		expect(result.totalDocs).to.equal(100);
+		expect(result.limit).to.equal(10);
+		expect(result.page).to.equal(1);
+		expect(result.pagingCounter).to.equal(1);
+		expect(result.hasPrevPage).to.equal(false);
+		expect(result.hasNextPage).to.equal(true);
+		expect(result.prevPage).to.equal(null);
+		expect(result.nextPage).to.equal(2);
+		expect(result.totalPages).to.equal(10);
       });
     });
-    it('with custom default options', function() {
-      mongoosePaginate.paginate.options = {
-        limit: 20,
-        lean: true
-      };
-      return Book.paginate().then(function(result) {
-        expect(result.docs).to.have.length(20);
-        expect(result.limit).to.equal(20);
-        expect(result.docs[0]).to.not.be.an.instanceof(mongoose.Document);
+	
+	it('with $where condition', function() {
+		var query = {				
+			'$where': 'this.price < 100'
+		};
+		
+		var options = {
+			sort: { price: -1},
+			page: 2
+		};
+		
+      return Book.paginate(query, options ).then((result) => {		  
+        expect(result.docs).to.have.length(6);
+        expect(result.docs[0].title).to.equal('Book #6');
+		expect(result.totalDocs).to.equal(16);
+		expect(result.limit).to.equal(10);
+		expect(result.page).to.equal(2);
+		expect(result.pagingCounter).to.equal(11);
+		expect(result.hasPrevPage).to.equal(true);
+		expect(result.hasNextPage).to.equal(false);
+		expect(result.prevPage).to.equal(1);
+		expect(result.nextPage).to.equal(null);
+		expect(result.totalPages).to.equal(2);
       });
     });
-    it('with offset and limit', function() {
-      return Book.paginate({}, { offset: 30, limit: 20 }).then(function(result) {
-        expect(result.docs).to.have.length(20);
-        expect(result.totalDocs).to.equal(100);
-        expect(result.limit).to.equal(20);
-        expect(result.offset).to.equal(30);
-        expect(result).to.not.have.property('page');
-        expect(result).to.not.have.property('pages');
+	
+	it('with custom labels', function() {
+		
+		var query = {
+			title: { 
+				$in : [/Book/i]
+			}
+		};
+		
+		const myCustomLabels = {
+			totalDocs: 'itemCount',
+			docs: 'itemsList',
+			limit: 'perPage',
+			page: 'currentPage',
+			nextPage: 'next',
+			prevPage: 'prev',
+			totalPages: 'pageCount',
+			pagingCounter: 'pageCounter'
+		};
+
+		var options = {
+			sort: { _id: 1},
+			limit: 10,
+			page: 5,
+			customLabels: myCustomLabels
+			
+		};
+      return Book.paginate(query,options).then((result) => {		
+        expect(result.itemsList).to.have.length(10);
+        expect(result.itemsList[0].title).to.equal('Book #41');
+		expect(result.itemCount).to.equal(100);
+		expect(result.perPage).to.equal(10);
+		expect(result.currentPage).to.equal(5);
+		expect(result.pageCounter).to.equal(41);
+		expect(result.hasPrevPage).to.equal(true);
+		expect(result.hasNextPage).to.equal(true);
+		expect(result.prev).to.equal(4);
+		expect(result.next).to.equal(6);
+		expect(result.pageCount).to.equal(10);
       });
     });
-    it('with page and limit', function() {
-      return Book.paginate({}, { page: 1, limit: 20 }).then(function(result) {
-        expect(result.docs).to.have.length(20);
-        expect(result.totalDocs).to.equal(100);
-        expect(result.limit).to.equal(20);
-        expect(result.page).to.equal(1);
-        expect(result.totalPages).to.equal(5);
-        expect(result).to.not.have.property('offset');
-      });
-    });
-    it('with zero limit', function() {
-      return Book.paginate({}, { page: 1, limit: 0 }).then(function(result) {
-        expect(result.docs).to.have.length(0);
-        expect(result.totalDocs).to.equal(100);
-        expect(result.limit).to.equal(0);
-        expect(result.page).to.equal(1);
-        expect(result.totalPages).to.equal(Infinity);
-      });
-    });
-    it('with select', function() {
-      return Book.paginate({}, { select: 'title' }).then(function(result) {
-        expect(result.docs[0].title).to.exist;
-        expect(result.docs[0].date).to.not.exist;
-      });
-    });
-    it('with sort', function() {
-      return Book.paginate({}, { sort: { date: -1 } }).then(function(result) {
-        expect(result.docs[0].title).to.equal('Book #100');
-      });
-    });
-    it('with populate', function() {
-      return Book.paginate({}, { populate: 'author' }).then(function(result) {
-        expect(result.docs[0].author.name).to.equal('Arthur Conan Doyle');
-      });
-    });
-    describe('with lean', function() {
-      it('with default leanWithId=true', function() {
-        return Book.paginate({}, { lean: true }).then(function(result) {
-          expect(result.docs[0]).to.not.be.an.instanceof(mongoose.Document);
-          expect(result.docs[0].id).to.equal(String(result.docs[0]._id));
-        });
-      });
-      it('with leanWithId=false', function() {
-        return Book.paginate({}, { lean: true, leanWithId: false }).then(function(result) {
-          expect(result.docs[0]).to.not.be.an.instanceof(mongoose.Document);
-          expect(result.docs[0]).to.not.have.property('id');
-        });
-      });
-    });
+	
+	
   });
+  
 
   after(function(done) {
-    mongoose.connection.db.dropDatabase(done);
+    mongoose.connection.db.dropDatabase(done);	
   });
 
   after(function(done) {
