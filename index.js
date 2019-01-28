@@ -4,7 +4,7 @@
  * @param {Object|String}       [options.select]
  * @param {Object|String}       [options.sort]
  * @param {Object|String}       [options.customLabels]
- * @param {Object|}             [options.collation]
+ * @param {Object}              [options.collation]
  * @param {Array|Object|String} [options.populate]
  * @param {Boolean}             [options.lean=false]
  * @param {Boolean}             [options.leanWithId=true]
@@ -57,7 +57,7 @@ function paginate(query, options, callback) {
     skip = offset;
   }
 
-  const count = this.count(query).exec();
+  const count = this.countDocuments(query).exec();
 
   const model = this.find(query);
   model.select(select);
@@ -65,7 +65,7 @@ function paginate(query, options, callback) {
   model.lean(lean);
 
   // Hack for mongo < v3.4
-  if (Object.keys(collation).length > 0) {
+  if (Object.keys('collation').length > 0) {
     model.collation(collation);
   }
 
@@ -111,7 +111,7 @@ function paginate(query, options, callback) {
 
         result[labelPage] = page;
         result[labelTotalPages] = pages;
-		result[labelPagingCounter] = ((page - 1) * limit) + 1;
+        result[labelPagingCounter] = ((page - 1) * limit) + 1;
 
         // Set prev page
         if (page > 1) {
@@ -131,21 +131,16 @@ function paginate(query, options, callback) {
       }
 
       // Adding support for callbacks if specified.
-      if (callback) {
-        process.emitWarning(
-          'mongoose-paginate-v2: callback will be removed from future versions, use promise instead.',
-          'DeprecationWarning'
-        );
-
+      if (typeof callback === 'function') {
         return callback(null, result);
       } else {
         return Promise.resolve(result);
       }
-    }).catch(function (error) {
-      if (callback) {
-        return callback(error);
+    }).catch(function (reject) {
+      if (typeof callback === 'function') {
+        return callback(reject);
       } else {
-        return Promise.reject(error);
+        return Promise.reject(reject);
       }
     });
 }

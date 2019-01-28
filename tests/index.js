@@ -4,7 +4,7 @@ let mongoose = require('mongoose');
 let expect = require('chai').expect;
 let mongoosePaginate = require('../index');
 
-let MONGO_URI = 'mongodb://127.0.0.1/mongoose_paginate_test';
+let MONGO_URI = 'mongodb://localhost/mongoose_paginate_test';
 
 let AuthorSchema = new mongoose.Schema({ name: String });
 let Author = mongoose.model('Author', AuthorSchema);
@@ -26,7 +26,7 @@ let Book = mongoose.model('Book', BookSchema);
 describe('mongoose-paginate', function() {
 
   before(function(done) {
-    mongoose.connect(MONGO_URI, done);
+    mongoose.connect(MONGO_URI, {useNewUrlParser: true}, done);
   });
 
   before(function(done) {
@@ -81,7 +81,11 @@ describe('mongoose-paginate', function() {
 		};
 		
 		var options = {
-			sort: { _id: 1}
+			sort: { _id: 1},
+			collation: {
+				locale: 'en',
+				strength: 2
+			}
 		};
 		
       return Book.paginate(query, options ).then((result) => {		  
@@ -99,6 +103,7 @@ describe('mongoose-paginate', function() {
       });
     });
 	
+	/*
 	it('with $where condition', function() {
 		var query = {				
 			'$where': 'this.price < 100'
@@ -123,6 +128,8 @@ describe('mongoose-paginate', function() {
 		expect(result.totalPages).to.equal(2);
       });
     });
+	*/
+	
 	
 	it('with custom labels', function() {
 		
