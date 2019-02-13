@@ -65,7 +65,7 @@ function paginate(query, options, callback) {
   model.lean(lean);
 
   // Hack for mongo < v3.4
-  if (Object.keys('collation').length > 0) {
+  if (Object.keys(collation).length > 0) {
     model.collation(collation);
   }
 
