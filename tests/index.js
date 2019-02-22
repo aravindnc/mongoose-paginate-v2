@@ -63,12 +63,6 @@ describe('mongoose-paginate', function () {
 	});
 
 	it('callback test', function (done) {
-
-		Book.find({}).select('').sort('').exec().then((docs) => {
-			debugger;
-		});
-
-
 		Book.paginate({}, {}, function (err, result) {
 			expect(err).to.be.null;
 			expect(result).to.be.an.instanceOf(Object);
