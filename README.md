@@ -220,8 +220,5 @@ Model.paginate().then(function(result) {
 });
 ```
 
-## Thanks
-This is a advanced version of mongoose-paginate forked from [Mongoose Paginate](https://www.npmjs.com/package/mongoose-paginate). Credits to the initial author [Edward Hotchkiss](https://www.npmjs.com/~edwardhotchkiss)
-
 ## License
 [MIT](LICENSE)
