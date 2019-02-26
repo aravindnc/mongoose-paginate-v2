@@ -187,19 +187,6 @@ Book.paginate(query, options).then(function(result) {
 });
 ```
 
-#### Zero limit
-
-You can use `limit=0` to get only metadata:
-
-```javascript
-Model.paginate({}, { offset: 100, limit: 0 }).then(function(result) {
-    // result.docs - empty array
-    // result.totalDocs
-    // result.limit - 0
-    // result.offset - 100
-});
-```
-
 #### Set custom default options for all queries
 
 config.js:
