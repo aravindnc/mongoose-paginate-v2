@@ -39,7 +39,10 @@ const deafultOptions = {
 };
 
 function paginate(query, options, callback) {
-  options = { ...deafultOptions, ...options };
+  options = {
+    ...deafultOptions,
+    ...options
+  };
   query = query || {};
 
   const {
@@ -60,6 +63,9 @@ function paginate(query, options, callback) {
   let offset;
   let page;
   let skip;
+
+  let docsPromise = {};
+  let docs = [];
 
   // Labels
   const labelDocs = customLabels.docs;
@@ -85,34 +91,37 @@ function paginate(query, options, callback) {
 
   const countPromise = this.countDocuments(query).exec();
 
-  const mQuery = this.find(query, projection, findOptions);
-  mQuery.select(select);
-  mQuery.sort(sort);
-  mQuery.lean(lean);
-
-  // Hack for mongo < v3.4
-  if (Object.keys(collation).length > 0) {
-    mQuery.collation(collation);
-  }
-
   if (limit) {
+    const mQuery = this.find(query, projection, findOptions);
+    mQuery.select(select);
+    mQuery.sort(sort);
+    mQuery.lean(lean);
+
+    // Hack for mongo < v3.4
+    if (Object.keys(collation).length > 0) {
+      mQuery.collation(collation);
+    }
+
+
     mQuery.skip(skip);
     mQuery.limit(limit);
-  }
 
-  if (populate) {
-    mQuery.populate(populate);
-  }
 
-  let docsPromise = mQuery.exec();
+    if (populate) {
+      mQuery.populate(populate);
+    }
 
-  if (lean && leanWithId) {
-    docsPromise = docsPromise.then((docs) => {
-      docs.forEach((doc) => {
-        doc.id = String(doc._id);
+    docsPromise = mQuery.exec();
+
+    if (lean && leanWithId) {
+      docsPromise = docsPromise.then((docs) => {
+        docs.forEach((doc) => {
+          doc.id = String(doc._id);
+        });
+        return docs;
       });
-      return docs;
-    });
+    }
+
   }
 
   return Promise.all([countPromise, docsPromise])
@@ -129,7 +138,8 @@ function paginate(query, options, callback) {
       }
 
       if (typeof page !== 'undefined') {
-        const pages = Math.ceil(count / limit) || 1;
+
+        const pages = (limit > 0) ? (Math.ceil(count / limit) || 1) : null;
 
         result.hasPrevPage = false;
         result.hasNextPage = false;
