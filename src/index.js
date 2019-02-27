@@ -64,7 +64,7 @@ function paginate(query, options, callback) {
   let page;
   let skip;
 
-  let docsPromise = {};
+  let docsPromise = [];
   let docs = [];
 
   // Labels

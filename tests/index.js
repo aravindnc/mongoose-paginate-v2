@@ -75,11 +75,12 @@ describe('mongoose-paginate', function () {
 		it('with limit and page', function () {
 			var query = {
 				title: {
-					$in: [/Book/i]
+					$in: [/Book #1/i]
 				}
 			};
 
 			var options = {
+				limit:0,
 				sort: { _id: 1 },
 				collation: {
 					locale: 'en',
@@ -89,17 +90,18 @@ describe('mongoose-paginate', function () {
 			};
 
 			return Book.paginate(query, options).then((result) => {
-				expect(result.docs).to.have.length(10);
-				expect(result.docs[0].title).to.equal('Book #1');
-				expect(result.totalDocs).to.equal(100);
-				expect(result.limit).to.equal(10);
+				
+				console.log(result);
+				expect(result.docs).to.have.length(0);
+				expect(result.totalDocs).to.equal(12);
+				expect(result.limit).to.equal(0);
 				expect(result.page).to.equal(1);
 				expect(result.pagingCounter).to.equal(1);
 				expect(result.hasPrevPage).to.equal(false);
-				expect(result.hasNextPage).to.equal(true);
+				expect(result.hasNextPage).to.equal(false);
 				expect(result.prevPage).to.equal(null);
-				expect(result.nextPage).to.equal(2);
-				expect(result.totalPages).to.equal(10);
+				expect(result.nextPage).to.equal(null);
+				expect(result.totalPages).to.equal(null);
 			});
 		});
 
@@ -154,10 +156,12 @@ describe('mongoose-paginate', function () {
 				sort: { _id: 1 },
 				limit: 10,
 				page: 5,
+				select: {title:1, price:1},
 				customLabels: myCustomLabels
 
 			};
 			return Book.paginate(query, options).then((result) => {
+				
 				expect(result.itemsList).to.have.length(10);
 				expect(result.itemsList[0].title).to.equal('Book #41');
 				expect(result.itemCount).to.equal(100);
