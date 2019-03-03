@@ -3,6 +3,7 @@
 [![Dependency Status](https://david-dm.org/aravindnc/mongoose-paginate-v2.svg)](https://david-dm.org/aravindnc/mongoose-paginate-v2)
 [![devDependency Status](https://david-dm.org/aravindnc/mongoose-paginate-v2/dev-status.svg)](https://david-dm.org/aravindnc/mongoose-paginate-v2#info=devDependencies)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/aravindnc/mongoose-paginate-v2/issues)
+[![Downloads](https://img.shields.io/npm/dm/mongoose-paginate-v2.svg)](https://img.shields.io/npm/dm/mongoose-paginate-v2.svg)
 [![HitCount](http://hits.dwyl.io/aravindnc/mongoose-paginate-v2.svg)](http://hits.dwyl.io/aravindnc/mongoose-paginate-v2)
 
 > A cursor based custom pagination library for [Mongoose](http://mongoosejs.com) with customizable labels.
