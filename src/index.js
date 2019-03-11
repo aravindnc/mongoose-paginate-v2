@@ -41,6 +41,7 @@ const deafultOptions = {
 function paginate(query, options, callback) {
   options = {
     ...deafultOptions,
+	...paginate.options,
     ...options
   };
   query = query || {};
