@@ -18,7 +18,7 @@
  * @returns {Promise}
  */
 
-const deafultOptions = {
+const defaultOptions = {
   customLabels: {
     totalDocs: 'totalDocs',
     limit: 'limit',
@@ -40,7 +40,7 @@ const deafultOptions = {
 
 function paginate(query, options, callback) {
   options = {
-    ...deafultOptions,
+    ...defaultOptions,
 	...paginate.options,
     ...options
   };
