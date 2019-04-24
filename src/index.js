@@ -51,12 +51,13 @@ function paginate(query, options, callback) {
     customLabels,
     lean,
     leanWithId,
-    limit,
     populate,
     projection,
     select,
     sort,
   } = options;
+  
+  const limit = parseInt(options.limit, 10) || 0;
 
   const isCallbackSpecified = typeof callback === 'function';
   const findOptions = options.options;

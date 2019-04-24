@@ -1,6 +1,6 @@
 {
 	"name": "mongoose-paginate-v2",
-	"version": "1.0.24",
+	"version": "1.2.0",
 	"description": "A cursor based custom pagination library for Mongoose with customizable labels.",
 	"main": "lib/index.js",
 	"scripts": {
@@ -39,8 +39,8 @@
 	"homepage": "https://github.com/WebGangster/mongoose-paginate-v2#readme",
 	"dependencies": {},
 	"devDependencies": {
-		"@babel/cli": "^7.2.3",
-		"@babel/core": "^7.3.4",
+		"@babel/cli": "^7.4.3",
+		"@babel/core": "^7.4.3",
 		"@babel/plugin-proposal-class-properties": "^7.0.0",
 		"@babel/plugin-proposal-decorators": "^7.0.0",
 		"@babel/plugin-proposal-do-expressions": "^7.0.0",
@@ -58,7 +58,6 @@
 		"@babel/plugin-syntax-dynamic-import": "^7.0.0",
 		"@babel/plugin-syntax-import-meta": "^7.0.0",
 		"@babel/preset-env": "^7.3.1",
-		"babel-cli": "^6.26.0",
 		"chai": "^4.2.0",
 		"mocha": "^6.0.1",
 		"mongoose": "^5.2.4"
