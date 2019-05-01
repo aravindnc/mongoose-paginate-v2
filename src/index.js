@@ -41,14 +41,13 @@ const defaultOptions = {
 function paginate(query, options, callback) {
   options = {
     ...defaultOptions,
-	...paginate.options,
+    ...paginate.options,
     ...options
   };
   query = query || {};
 
   const {
     collation,
-    customLabels,
     lean,
     leanWithId,
     populate,
@@ -56,7 +55,12 @@ function paginate(query, options, callback) {
     select,
     sort,
   } = options;
-  
+
+  const customLabels = {
+    ...defaultOptions.customLabels,
+    ...options.customLabels
+  };
+
   const limit = parseInt(options.limit, 10) || 0;
 
   const isCallbackSpecified = typeof callback === 'function';
