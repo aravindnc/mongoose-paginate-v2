@@ -127,7 +127,6 @@ function paginate(query, options, callback) {
         return docs;
       });
     }
-
   }
 
   return Promise.all([countPromise, docsPromise])
@@ -170,6 +169,9 @@ function paginate(query, options, callback) {
           meta[labelNextPage] = null;
         }
       }
+
+      // Remove customLabels set to false
+      delete meta['false'];
 
       if (labelMeta) {
         result = {

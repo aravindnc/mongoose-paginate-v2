@@ -76,7 +76,6 @@ describe('mongoose-paginate', function () {
     });
   });
 
-
   describe('paginates', function () {
     it('with limit and page', function () {
       var query = {
@@ -140,6 +139,46 @@ describe('mongoose-paginate', function () {
     });
     */
 
+  it('with empty custom labels', function () {
+    var query = {
+      title: {
+        $in: [/Book/i]
+      }
+    };
+
+    const myCustomLabels = {
+      nextPage: false,
+      prevPage: '',
+    };
+
+    var options = {
+      sort: {
+        _id: 1
+      },
+      limit: 10,
+      page: 5,
+      select: {
+        title: 1,
+        price: 1
+      },
+      customLabels: myCustomLabels
+    };
+    return Book.paginate(query, options).then((result) => {
+      expect(result.docs).to.have.length(10);
+      expect(result.docs[0].title).to.equal('Book #41');
+      expect(result.totalDocs).to.equal(100);
+      expect(result.limit).to.equal(10);
+      expect(result.page).to.equal(5);
+      expect(result.pagingCounter).to.equal(41);
+      expect(result.hasPrevPage).to.equal(true);
+      expect(result.hasNextPage).to.equal(true);
+      expect(result.totalPages).to.equal(10);
+
+      expect(result.prevPage).to.equal(undefined);
+      expect(result.nextPage).to.equal(undefined);
+    });
+  });
+
     it('with custom labels', function () {
       var query = {
         title: {
@@ -169,7 +208,6 @@ describe('mongoose-paginate', function () {
           price: 1
         },
         customLabels: myCustomLabels
-
       };
       return Book.paginate(query, options).then((result) => {
         expect(result.itemsList).to.have.length(10);

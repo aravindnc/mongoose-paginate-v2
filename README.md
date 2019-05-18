@@ -119,10 +119,10 @@ Now developers can specify the return field names if they want. Below are the li
 * meta
 
 You should pass the names of the properties you wish to changes using `customLabels` object in options.
-
+Set the property to false to remove it from the result.
 Same query with custom labels
-```javascript
 
+```javascript
 const myCustomLabels = {
     totalDocs: 'itemCount',
     docs: 'itemsList',
