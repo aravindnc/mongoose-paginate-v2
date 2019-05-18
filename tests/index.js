@@ -173,7 +173,6 @@ describe('mongoose-paginate', function () {
       expect(result.hasPrevPage).to.equal(true);
       expect(result.hasNextPage).to.equal(true);
       expect(result.totalPages).to.equal(10);
-
       expect(result.prevPage).to.equal(undefined);
       expect(result.nextPage).to.equal(undefined);
     });
@@ -194,7 +193,9 @@ describe('mongoose-paginate', function () {
         nextPage: 'next',
         prevPage: 'prev',
         totalPages: 'pageCount',
-        pagingCounter: 'pageCounter'
+        pagingCounter: 'pageCounter',
+        hasPrevPage: 'hasPrevious',
+        hasNextPage: 'hasNext'
       };
 
       var options = {
@@ -216,8 +217,8 @@ describe('mongoose-paginate', function () {
         expect(result.perPage).to.equal(10);
         expect(result.currentPage).to.equal(5);
         expect(result.pageCounter).to.equal(41);
-        expect(result.hasPrevPage).to.equal(true);
-        expect(result.hasNextPage).to.equal(true);
+        expect(result.hasPrevious).to.equal(true);
+        expect(result.hasNext).to.equal(true);
         expect(result.prev).to.equal(4);
         expect(result.next).to.equal(6);
         expect(result.pageCount).to.equal(10);

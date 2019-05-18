@@ -28,6 +28,8 @@ const defaultOptions = {
     nextPage: 'nextPage',
     prevPage: 'prevPage',
     pagingCounter: 'pagingCounter',
+    hasPrevPage: 'hasPrevPage',
+    hasNextPage: 'hasNextPage',
     meta: null,
   },
   collation: {},
@@ -83,6 +85,8 @@ function paginate(query, options, callback) {
   const labelPrevPage = customLabels.prevPage;
   const labelTotal = customLabels.totalDocs;
   const labelTotalPages = customLabels.totalPages;
+  const labelHasPrevPage = customLabels.hasPrevPage;
+  const labelHasNextPage = customLabels.hasNextPage;
   const labelMeta = customLabels.meta;
 
   if (options.hasOwnProperty('offset')) {
@@ -146,16 +150,15 @@ function paginate(query, options, callback) {
 
         const pages = (limit > 0) ? (Math.ceil(count / limit) || 1) : null;
 
-        meta.hasPrevPage = false;
-        meta.hasNextPage = false;
-
+        meta[labelHasPrevPage] = false;
+        meta[labelHasNextPage] = false;
         meta[labelPage] = page;
         meta[labelTotalPages] = pages;
         meta[labelPagingCounter] = ((page - 1) * limit) + 1;
 
         // Set prev page
         if (page > 1) {
-          meta.hasPrevPage = true;
+          meta[labelHasPrevPage] = true;
           meta[labelPrevPage] = (page - 1);
         } else {
           meta[labelPrevPage] = null;
@@ -163,7 +166,7 @@ function paginate(query, options, callback) {
 
         // Set next page
         if (page < pages) {
-          meta.hasNextPage = true;
+          meta[labelHasNextPage] = true;
           meta[labelNextPage] = (page + 1);
         } else {
           meta[labelNextPage] = null;

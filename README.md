@@ -150,8 +150,8 @@ Model.paginate({}, options, function(err, result) {
     // result.paginator.next = 2 [here nextPage becomes next]
     // result.paginator.prev = null [here prevPage becomes prev]
 	  // result.paginator.slNo = 1 [here pagingCounter becomes slNo]
-    // result.paginator.hasNextPage = true [not changeable]
-    // result.paginator.hasPrevPage = false [not changeable]
+    // result.paginator.hasNextPage = true
+    // result.paginator.hasPrevPage = false
 });
 ```
 
