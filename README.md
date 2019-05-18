@@ -72,6 +72,7 @@ Promise fulfilled with object having properties:
 * `prevPage` {Number} - Previous page number if available or NULL
 * `nextPage` {Number} - Next page number if available or NULL
 * `pagingCounter` {Number} - The starting sl. number of first document.
+* `meta` {Object} - Object of pagination meta data (Default false).
 
 Please note that the above properties can be renamed by setting customLabel attribute.
 
@@ -99,8 +100,7 @@ Model.paginate({}, options, function(err, result) {
     // result.nextPage = 2
     // result.hasPrevPage = false
     // result.prevPage = null
-	// result.pagingCounter = 1
-    
+	  // result.pagingCounter = 1
 });
 ```
 
@@ -116,6 +116,7 @@ Now developers can specify the return field names if they want. Below are the li
 * prevPage
 * totalPages
 * pagingCounter
+* meta
 
 You should pass the names of the properties you wish to changes using `customLabels` object in options.
 
@@ -129,8 +130,9 @@ const myCustomLabels = {
     page: 'currentPage',
     nextPage: 'next',
     prevPage: 'prev',
-    totalPages: 'pageCount'
-	pagingCounter: 'slNo'
+    totalPages: 'pageCount',
+    pagingCounter: 'slNo',
+    meta: 'paginator'
 };
 
 const options = {
@@ -141,16 +143,15 @@ const options = {
 
 Model.paginate({}, options, function(err, result) {
     // result.itemsList [here docs become itemsList]
-    // result.itemCount = 100 [here totalDocs becomes itemCount]
-    // result.perPage = 10 [here limit becomes perPage]
-    // result.currentPage = 1 [here page becomes currentPage]
-    // result.pageCount = 10 [here totalPages becomes pageCount]
-    // result.next = 2 [here nextPage becomes next]
-    // result.prev = null [here prevPage becomes prev]
-	// result.slNo = 1 [here pagingCounter becomes slNo]
-    
-    // result.hasNextPage = true [not changeable]
-    // result.hasPrevPage = false [not changeable]
+    // result.paginator.itemCount = 100 [here totalDocs becomes itemCount]
+    // result.paginator.perPage = 10 [here limit becomes perPage]
+    // result.paginator.currentPage = 1 [here page becomes currentPage]
+    // result.paginator.pageCount = 10 [here totalPages becomes pageCount]
+    // result.paginator.next = 2 [here nextPage becomes next]
+    // result.paginator.prev = null [here prevPage becomes prev]
+	  // result.paginator.slNo = 1 [here pagingCounter becomes slNo]
+    // result.paginator.hasNextPage = true [not changeable]
+    // result.paginator.hasPrevPage = false [not changeable]
 });
 ```
 
