@@ -2,7 +2,7 @@
 
 let mongoose = require('mongoose');
 let expect = require('chai').expect;
-let mongoosePaginate = require('../lib/index');
+let mongoosePaginate = require('../dist/index');
 
 let MONGO_URI = 'mongodb://localhost/mongoose_paginate_test';
 
