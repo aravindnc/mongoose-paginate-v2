@@ -28,6 +28,9 @@ const defaultOptions = {
     nextPage: 'nextPage',
     prevPage: 'prevPage',
     pagingCounter: 'pagingCounter',
+    hasPrevPage: 'hasPrevPage',
+    hasNextPage: 'hasNextPage',
+    meta: null,
   },
   collation: {},
   lean: false,
@@ -82,6 +85,9 @@ function paginate(query, options, callback) {
   const labelPrevPage = customLabels.prevPage;
   const labelTotal = customLabels.totalDocs;
   const labelTotalPages = customLabels.totalPages;
+  const labelHasPrevPage = customLabels.hasPrevPage;
+  const labelHasNextPage = customLabels.hasNextPage;
+  const labelMeta = customLabels.meta;
 
   if (options.hasOwnProperty('offset')) {
     offset = parseInt(options.offset, 10);
@@ -108,10 +114,8 @@ function paginate(query, options, callback) {
       mQuery.collation(collation);
     }
 
-
     mQuery.skip(skip);
     mQuery.limit(limit);
-
 
     if (populate) {
       mQuery.populate(populate);
@@ -127,48 +131,61 @@ function paginate(query, options, callback) {
         return docs;
       });
     }
-
   }
 
   return Promise.all([countPromise, docsPromise])
     .then((values) => {
       const [count, docs] = values;
-      const result = {
-        [labelDocs]: docs,
+      const meta = {
         [labelTotal]: count,
         [labelLimit]: limit
       };
+      let result = {};
 
       if (typeof offset !== 'undefined') {
-        result.offset = offset;
+        meta.offset = offset;
       }
 
       if (typeof page !== 'undefined') {
 
         const pages = (limit > 0) ? (Math.ceil(count / limit) || 1) : null;
 
-        result.hasPrevPage = false;
-        result.hasNextPage = false;
-
-        result[labelPage] = page;
-        result[labelTotalPages] = pages;
-        result[labelPagingCounter] = ((page - 1) * limit) + 1;
+        meta[labelHasPrevPage] = false;
+        meta[labelHasNextPage] = false;
+        meta[labelPage] = page;
+        meta[labelTotalPages] = pages;
+        meta[labelPagingCounter] = ((page - 1) * limit) + 1;
 
         // Set prev page
         if (page > 1) {
-          result.hasPrevPage = true;
-          result[labelPrevPage] = (page - 1);
+          meta[labelHasPrevPage] = true;
+          meta[labelPrevPage] = (page - 1);
         } else {
-          result[labelPrevPage] = null;
+          meta[labelPrevPage] = null;
         }
 
         // Set next page
         if (page < pages) {
-          result.hasNextPage = true;
-          result[labelNextPage] = (page + 1);
+          meta[labelHasNextPage] = true;
+          meta[labelNextPage] = (page + 1);
         } else {
-          result[labelNextPage] = null;
+          meta[labelNextPage] = null;
         }
+      }
+
+      // Remove customLabels set to false
+      delete meta['false'];
+
+      if (labelMeta) {
+        result = {
+          [labelDocs]: docs,
+          [labelMeta]: meta
+        };
+      } else {
+        result = {
+          [labelDocs]: docs,
+          ...meta
+        };
       }
 
       return isCallbackSpecified ? callback(null, result) : Promise.resolve(result);

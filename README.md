@@ -12,7 +12,6 @@ If you are looking for aggregate query pagination, use this one [mongoose-aggreg
 
 [![NPM](https://nodei.co/npm/mongoose-paginate-v2.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/mongoose-paginate-v2)
 
-
 ## Installation
 
 ```sh
@@ -24,16 +23,16 @@ npm install mongoose-paginate-v2
 Add plugin to a schema and then use model `paginate` method:
 
 ```js
-var mongoose         = require('mongoose');
-var mongoosePaginate = require('mongoose-paginate-v2');
+const mongoose         = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
 
-var mySchema = new mongoose.Schema({ 
-    /* your schema definition */ 
+const mySchema = new mongoose.Schema({ 
+  /* your schema definition */ 
 });
 
 mySchema.plugin(mongoosePaginate);
 
-var myModel = mongoose.model('SampleModel',  mySchema); 
+const myModel = mongoose.model('SampleModel',  mySchema); 
 
 myModel.paginate().then({}) // Usage
 ```
@@ -61,6 +60,7 @@ Returns promise
 **Return value**
 
 Promise fulfilled with object having properties:
+
 * `docs` {Array} - Array of documents
 * `totalDocs` {Number} - Total number of documents in collection that match a query
 * `limit` {Number} - Limit that was used
@@ -72,6 +72,7 @@ Promise fulfilled with object having properties:
 * `prevPage` {Number} - Previous page number if available or NULL
 * `nextPage` {Number} - Next page number if available or NULL
 * `pagingCounter` {Number} - The starting sl. number of first document.
+* `meta` {Object} - Object of pagination meta data (Default false).
 
 Please note that the above properties can be renamed by setting customLabel attribute.
 
@@ -80,27 +81,25 @@ Please note that the above properties can be renamed by setting customLabel attr
 #### Return first 10 documents from 100
 
 ```javascript
-
 const options = {
-    page: 1,
-    limit: 10,
-	collation: {
-		locale: 'en'
-	}
+  page: 1,
+  limit: 10,
+  collation: {
+    locale: 'en'
+  }
 };
 
 Model.paginate({}, options, function(err, result) {
-    // result.docs
-    // result.totalDocs = 100
-    // result.limit = 10
-    // result.page = 1
-    // result.totalPages = 10    
-    // result.hasNextPage = true
-    // result.nextPage = 2
-    // result.hasPrevPage = false
-    // result.prevPage = null
-	// result.pagingCounter = 1
-    
+  // result.docs
+  // result.totalDocs = 100
+  // result.limit = 10
+  // result.page = 1
+  // result.totalPages = 10    
+  // result.hasNextPage = true
+  // result.nextPage = 2
+  // result.hasPrevPage = false
+  // result.prevPage = null
+  // result.pagingCounter = 1
 });
 ```
 
@@ -116,60 +115,63 @@ Now developers can specify the return field names if they want. Below are the li
 * prevPage
 * totalPages
 * pagingCounter
+* meta
 
 You should pass the names of the properties you wish to changes using `customLabels` object in options.
-
+Set the property to false to remove it from the result.
 Same query with custom labels
-```javascript
 
+```javascript
 const myCustomLabels = {
-    totalDocs: 'itemCount',
-    docs: 'itemsList',
-    limit: 'perPage',
-    page: 'currentPage',
-    nextPage: 'next',
-    prevPage: 'prev',
-    totalPages: 'pageCount'
-	pagingCounter: 'slNo'
+  totalDocs: 'itemCount',
+  docs: 'itemsList',
+  limit: 'perPage',
+  page: 'currentPage',
+  nextPage: 'next',
+  prevPage: 'prev',
+  totalPages: 'pageCount',
+  pagingCounter: 'slNo',
+  meta: 'paginator'
 };
 
 const options = {
-    page: 1,
-    limit: 10,
-    customLabels: myCustomLabels
+  page: 1,
+  limit: 10,
+  customLabels: myCustomLabels
 };
 
 Model.paginate({}, options, function(err, result) {
-    // result.itemsList [here docs become itemsList]
-    // result.itemCount = 100 [here totalDocs becomes itemCount]
-    // result.perPage = 10 [here limit becomes perPage]
-    // result.currentPage = 1 [here page becomes currentPage]
-    // result.pageCount = 10 [here totalPages becomes pageCount]
-    // result.next = 2 [here nextPage becomes next]
-    // result.prev = null [here prevPage becomes prev]
-	// result.slNo = 1 [here pagingCounter becomes slNo]
-    
-    // result.hasNextPage = true [not changeable]
-    // result.hasPrevPage = false [not changeable]
+  // result.itemsList [here docs become itemsList]
+  // result.paginator.itemCount = 100 [here totalDocs becomes itemCount]
+  // result.paginator.perPage = 10 [here limit becomes perPage]
+  // result.paginator.currentPage = 1 [here page becomes currentPage]
+  // result.paginator.pageCount = 10 [here totalPages becomes pageCount]
+  // result.paginator.next = 2 [here nextPage becomes next]
+  // result.paginator.prev = null [here prevPage becomes prev]
+  // result.paginator.slNo = 1 [here pagingCounter becomes slNo]
+  // result.paginator.hasNextPage = true
+  // result.paginator.hasPrevPage = false
 });
 ```
 
 ### Other Examples
 
 Using `offset` and `limit`:
+
 ```javascript
 Model.paginate({}, { offset: 30, limit: 10 }, function(err, result) {
-    // result.docs
-    // result.totalPages
-    // result.limit - 10
-    // result.offset - 30
+  // result.docs
+  // result.totalPages
+  // result.limit - 10
+  // result.offset - 30
 });
 ```
 
 With promise:
+
 ```js
 Model.paginate({}, { offset: 30, limit: 10 }).then(function(result) {
-    // ...
+  // ...
 });
 ```
 
@@ -178,16 +180,16 @@ Model.paginate({}, { offset: 30, limit: 10 }).then(function(result) {
 ```javascript
 var query   = {};
 var options = {
-    select:   'title date author',
-    sort:     { date: -1 },
-    populate: 'author',
-    lean:     true,
-    offset:   20, 
-    limit:    10
+  select:   'title date author',
+  sort:     { date: -1 },
+  populate: 'author',
+  lean:     true,
+  offset:   20, 
+  limit:    10
 };
 
 Book.paginate(query, options).then(function(result) {
-    // ...
+  // ...
 });
 ```
 
@@ -197,31 +199,34 @@ You can use `limit=0` to get only metadata:
 
 ```javascript
 Model.paginate({}, { limit: 0 }).then(function(result) {
-    // result.docs - empty array
-    // result.totalDocs
-    // result.limit - 0    
+  // result.docs - empty array
+  // result.totalDocs
+  // result.limit - 0    
 });
 ```
 
 #### Set custom default options for all queries
 
 config.js:
+
 ```javascript
 var mongoosePaginate = require('mongoose-paginate-v2');
 
 mongoosePaginate.paginate.options = { 
-    lean:  true,
-    limit: 20
+  lean:  true,
+  limit: 20
 };
 ```
 
 controller.js:
+
 ```javascript
 Model.paginate().then(function(result) {
-    // result.docs - array of plain javascript objects
-    // result.limit - 20
+  // result.docs - array of plain javascript objects
+  // result.limit - 20
 });
 ```
 
 ## License
+
 [MIT](LICENSE)
