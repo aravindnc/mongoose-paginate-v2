@@ -76,7 +76,6 @@ describe('mongoose-paginate', function () {
     });
   });
 
-
   describe('paginates', function () {
     it('with limit and page', function () {
       var query = {
@@ -98,7 +97,6 @@ describe('mongoose-paginate', function () {
       };
 
       return Book.paginate(query, options).then((result) => {
-
         expect(result.docs).to.have.length(0);
         expect(result.totalDocs).to.equal(12);
         expect(result.limit).to.equal(0);
@@ -141,9 +139,46 @@ describe('mongoose-paginate', function () {
     });
     */
 
+  it('with empty custom labels', function () {
+    var query = {
+      title: {
+        $in: [/Book/i]
+      }
+    };
+
+    const myCustomLabels = {
+      nextPage: false,
+      prevPage: '',
+    };
+
+    var options = {
+      sort: {
+        _id: 1
+      },
+      limit: 10,
+      page: 5,
+      select: {
+        title: 1,
+        price: 1
+      },
+      customLabels: myCustomLabels
+    };
+    return Book.paginate(query, options).then((result) => {
+      expect(result.docs).to.have.length(10);
+      expect(result.docs[0].title).to.equal('Book #41');
+      expect(result.totalDocs).to.equal(100);
+      expect(result.limit).to.equal(10);
+      expect(result.page).to.equal(5);
+      expect(result.pagingCounter).to.equal(41);
+      expect(result.hasPrevPage).to.equal(true);
+      expect(result.hasNextPage).to.equal(true);
+      expect(result.totalPages).to.equal(10);
+      expect(result.prevPage).to.equal(undefined);
+      expect(result.nextPage).to.equal(undefined);
+    });
+  });
 
     it('with custom labels', function () {
-
       var query = {
         title: {
           $in: [/Book/i]
@@ -158,7 +193,9 @@ describe('mongoose-paginate', function () {
         nextPage: 'next',
         prevPage: 'prev',
         totalPages: 'pageCount',
-        pagingCounter: 'pageCounter'
+        pagingCounter: 'pageCounter',
+        hasPrevPage: 'hasPrevious',
+        hasNextPage: 'hasNext'
       };
 
       var options = {
@@ -172,27 +209,55 @@ describe('mongoose-paginate', function () {
           price: 1
         },
         customLabels: myCustomLabels
-
       };
       return Book.paginate(query, options).then((result) => {
-
         expect(result.itemsList).to.have.length(10);
         expect(result.itemsList[0].title).to.equal('Book #41');
         expect(result.itemCount).to.equal(100);
         expect(result.perPage).to.equal(10);
         expect(result.currentPage).to.equal(5);
         expect(result.pageCounter).to.equal(41);
-        expect(result.hasPrevPage).to.equal(true);
-        expect(result.hasNextPage).to.equal(true);
+        expect(result.hasPrevious).to.equal(true);
+        expect(result.hasNext).to.equal(true);
         expect(result.prev).to.equal(4);
         expect(result.next).to.equal(6);
         expect(result.pageCount).to.equal(10);
       });
     });
-
-
   });
 
+  it('with custom Meta label', function () {
+    var query = {
+      title: {
+        $in: [/Book/i]
+      }
+    };
+
+    const myCustomLabels = {
+      meta: 'meta',
+      docs: 'itemsList',
+      totalDocs: 'total'
+    };
+
+    var options = {
+      sort: {
+        _id: 1
+      },
+      limit: 10,
+      page: 5,
+      select: {
+        title: 1,
+        price: 1
+      },
+      customLabels: myCustomLabels
+    };
+    return Book.paginate(query, options).then((result) => {
+      expect(result.itemsList).to.have.length(10);
+      expect(result.itemsList[0].title).to.equal('Book #41');
+      expect(result.meta).to.be.an.instanceOf(Object);
+      expect(result.meta.total).to.equal(100);
+    });
+  });
 
   after(function (done) {
     mongoose.connection.db.dropDatabase(done);
