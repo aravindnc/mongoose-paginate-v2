@@ -101,7 +101,19 @@ function paginate(query, options, callback) {
     skip = offset;
   }
 
-  const countPromise = this.countDocuments(query).exec();
+  const countQuery = Object.keys(query)
+    .reduce((acc, curr) => {
+      if (
+        curr === 'limit' ||
+        curr === 'skip' ||
+        curr === 'hint' ||
+        curr === 'maxTimeMS'
+      ) {
+        acc[curr] = query[curr]
+      }
+      return acc
+    }, {})
+  const countPromise = this.countDocuments(countQuery).exec();
 
   if (limit) {
     const mQuery = this.find(query, projection, findOptions);
