@@ -101,19 +101,7 @@ function paginate(query, options, callback) {
     skip = offset;
   }
 
-  const countQuery = Object.keys(query)
-    .reduce((acc, curr) => {
-      if (
-        curr === 'limit' ||
-        curr === 'skip' ||
-        curr === 'hint' ||
-        curr === 'maxTimeMS'
-      ) {
-        acc[curr] = query[curr]
-      }
-      return acc
-    }, {})
-  const countPromise = this.countDocuments(countQuery).exec();
+  const countPromise = this.find(query).exec();
 
   if (limit) {
     const mQuery = this.find(query, projection, findOptions);
@@ -149,7 +137,7 @@ function paginate(query, options, callback) {
     .then((values) => {
       const [count, docs] = values;
       const meta = {
-        [labelTotal]: count,
+        [labelTotal]: count.length,
         [labelLimit]: limit
       };
       let result = {};
