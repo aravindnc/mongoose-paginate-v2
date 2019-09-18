@@ -101,7 +101,7 @@ function paginate(query, options, callback) {
     skip = offset;
   }
 
-  const countPromise = this.countDocuments(query).exec();
+  const countPromise = this.find(query).exec();
 
   if (limit) {
     const mQuery = this.find(query, projection, findOptions);
@@ -137,7 +137,7 @@ function paginate(query, options, callback) {
     .then((values) => {
       const [count, docs] = values;
       const meta = {
-        [labelTotal]: count,
+        [labelTotal]: count.length,
         [labelLimit]: limit
       };
       let result = {};
