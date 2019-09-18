@@ -13,9 +13,6 @@
 		"type": "git",
 		"url": "git+https://github.com/WebGangster/mongoose-paginate-v2.git"
 	},
-	"publishConfig": {
-		"registry": "https://npm.pkg.github.com/@WebGangster"
-	},
 	"keywords": [
 		"mongoose",
 		"pagination",
