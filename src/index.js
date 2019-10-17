@@ -102,7 +102,19 @@ function paginate(query, options, callback) {
   }
 
   // const countPromise = this.countDocuments(query).exec();
-  const countPromise = this.find(query).exec();
+  // const countPromise = this.find(query).exec();
+
+  const countQuery = this.find(query);
+  if (populate) {
+    countQuery.populate(populate);
+  }
+
+  // Hack for mongo < v3.4
+  if (Object.keys(collation).length > 0) {
+    countQuery.collation(collation);
+  }
+
+  const countPromise = countQuery.exec();
 
   if (limit) {
     const mQuery = this.find(query, projection, findOptions);
@@ -115,12 +127,12 @@ function paginate(query, options, callback) {
       mQuery.collation(collation);
     }
 
-    mQuery.skip(skip);
-    mQuery.limit(limit);
-
     if (populate) {
       mQuery.populate(populate);
     }
+    
+    mQuery.skip(skip);
+    mQuery.limit(limit);
 
     docsPromise = mQuery.exec();
 
