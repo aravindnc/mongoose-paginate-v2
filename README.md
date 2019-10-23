@@ -76,6 +76,13 @@ Promise fulfilled with object having properties:
 
 Please note that the above properties can be renamed by setting customLabel attribute.
 
+### Note
+There are few operators that this plugin does not support, below are the list and suggested replacements
+
+* $where: $expr
+* $near: $geoWithin with $center
+* $nearSphere: $geoWithin with $centerSphere
+
 ### Sample Usage
 
 #### Return first 10 documents from 100
