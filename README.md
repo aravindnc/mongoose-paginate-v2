@@ -1,3 +1,5 @@
+![Banner](static/banner.jpg)
+
 # mongoose-paginate-v2
 [![npm version](https://img.shields.io/npm/v/mongoose-paginate-v2.svg)](https://www.npmjs.com/package/mongoose-paginate-v2)
 [![Dependency Status](https://david-dm.org/aravindnc/mongoose-paginate-v2.svg)](https://david-dm.org/aravindnc/mongoose-paginate-v2)
