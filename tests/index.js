@@ -273,15 +273,7 @@ describe('mongoose-paginate', function () {
 
   it('2dsphere', function () {
     var query = {
-      loc: {
-        $near: {
-          $geometry: {
-            type: "Point",
-            coordinates: [-10, 20]
-          },
-          $maxDistance: 999999
-        }
-      }
+      loc: { $geoWithin: { $center: [ [-10, 20], 999 ] } }
     };
 
     const myCustomLabels = {

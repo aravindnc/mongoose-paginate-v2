@@ -56,7 +56,7 @@ function paginate(query, options, callback) {
     populate,
     projection,
     select,
-    sort,
+    sort
   } = options;
 
   const customLabels = {
@@ -101,20 +101,7 @@ function paginate(query, options, callback) {
     skip = offset;
   }
 
-  // const countPromise = this.countDocuments(query).exec();
-  // const countPromise = this.find(query).exec();
-
-  const countQuery = this.find(query);
-  if (populate) {
-    countQuery.populate(populate);
-  }
-
-  // Hack for mongo < v3.4
-  if (Object.keys(collation).length > 0) {
-    countQuery.collation(collation);
-  }
-
-  const countPromise = countQuery.exec();
+  const countPromise = this.countDocuments(query).exec();
 
   if (limit) {
     const mQuery = this.find(query, projection, findOptions);
@@ -149,10 +136,7 @@ function paginate(query, options, callback) {
   return Promise.all([countPromise, docsPromise])
     .then((values) => {
 
-      // const [count, docs] = values;
-
-      const count = values[0].length;
-      const docs = values[1];
+      const [count, docs] = values;
 
       const meta = {
         [labelTotal]: count,
