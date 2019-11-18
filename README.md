@@ -57,6 +57,7 @@ Returns promise
   - `[page=1]` {Number}
   - `[limit=10]` {Number}
   - `[customLabels]` {Object} - Developers can provide custom labels for manipulating the response data.
+  - `[pagination]` {Boolean} - If `pagination` is set to false, it will return all docs without adding limit condition. (Default: True)
 * `[callback(err, result)]` - If specified the callback is called once pagination results are retrieved or when an error has occurred
 
 **Return value**
@@ -233,6 +234,28 @@ controller.js:
 Model.paginate().then(function(result) {
   // result.docs - array of plain javascript objects
   // result.limit - 20
+});
+```
+
+#### Fetch all docs without pagination.
+If you need to fetch all the documents in the collection without applying a limit. Then set `pagination` as false,
+
+```javascript
+const options = {
+  pagination: false
+};
+
+Model.paginate({}, options, function(err, result) {
+  // result.docs
+  // result.totalDocs = 100
+  // result.limit = 100
+  // result.page = 1
+  // result.totalPages = 1    
+  // result.hasNextPage = false
+  // result.nextPage = null
+  // result.hasPrevPage = false
+  // result.prevPage = null
+  // result.pagingCounter = 1
 });
 ```
 
