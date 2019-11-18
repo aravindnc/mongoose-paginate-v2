@@ -39,6 +39,7 @@ const defaultOptions = {
   projection: {},
   select: '',
   options: {},
+  pagination: true
 };
 
 function paginate(query, options, callback) {
@@ -56,7 +57,8 @@ function paginate(query, options, callback) {
     populate,
     projection,
     select,
-    sort
+    sort,
+    pagination
   } = options;
 
   const customLabels = {
@@ -64,7 +66,7 @@ function paginate(query, options, callback) {
     ...options.customLabels
   };
 
-  const limit = parseInt(options.limit, 10) || 0;
+  const limit = parseInt(options.limit, 10) > 0 ? parseInt(options.limit, 10) : 10;
 
   const isCallbackSpecified = typeof callback === 'function';
   const findOptions = options.options;
@@ -103,60 +105,67 @@ function paginate(query, options, callback) {
 
   const countPromise = this.countDocuments(query).exec();
 
-  if (limit) {
-    const mQuery = this.find(query, projection, findOptions);
-    mQuery.select(select);
-    mQuery.sort(sort);
-    mQuery.lean(lean);
+  const mQuery = this.find(query, projection, findOptions);
+  mQuery.select(select);
+  mQuery.sort(sort);
+  mQuery.lean(lean);
 
-    // Hack for mongo < v3.4
-    if (Object.keys(collation).length > 0) {
-      mQuery.collation(collation);
-    }
+  // Hack for mongo < v3.4
+  if (Object.keys(collation).length > 0) {
+    mQuery.collation(collation);
+  }
 
-    if (populate) {
-      mQuery.populate(populate);
-    }
-    
+  if (populate) {
+    mQuery.populate(populate);
+  }
+
+  if (pagination) {
     mQuery.skip(skip);
     mQuery.limit(limit);
+  }
 
-    docsPromise = mQuery.exec();
+  docsPromise = mQuery.exec();
 
-    if (lean && leanWithId) {
-      docsPromise = docsPromise.then((docs) => {
-        docs.forEach((doc) => {
-          doc.id = String(doc._id);
-        });
-        return docs;
+  if (lean && leanWithId) {
+    docsPromise = docsPromise.then((docs) => {
+      docs.forEach((doc) => {
+        doc.id = String(doc._id);
       });
-    }
+      return docs;
+    });
   }
 
   return Promise.all([countPromise, docsPromise])
     .then((values) => {
 
       const [count, docs] = values;
-
       const meta = {
-        [labelTotal]: count,
-        [labelLimit]: limit
+        [labelTotal]: count
       };
+
       let result = {};
 
       if (typeof offset !== 'undefined') {
         meta.offset = offset;
       }
 
-      if (typeof page !== 'undefined') {
+      const pages = (limit > 0) ? (Math.ceil(count / limit) || 1) : null;
 
-        const pages = (limit > 0) ? (Math.ceil(count / limit) || 1) : null;
+      // Setting default values
+      meta[labelLimit] = count;
+      meta[labelTotalPages] = 1;
+      meta[labelPage] = page;
+      meta[labelPagingCounter] = ((page - 1) * limit) + 1;
 
-        meta[labelHasPrevPage] = false;
-        meta[labelHasNextPage] = false;
-        meta[labelPage] = page;
+      meta[labelHasPrevPage] = false;
+      meta[labelHasNextPage] = false;
+      meta[labelPrevPage] = null;
+      meta[labelNextPage] = null;
+
+      if (pagination) {
+
+        meta[labelLimit] = limit;
         meta[labelTotalPages] = pages;
-        meta[labelPagingCounter] = ((page - 1) * limit) + 1;
 
         // Set prev page
         if (page > 1) {
@@ -173,6 +182,7 @@ function paginate(query, options, callback) {
         } else {
           meta[labelNextPage] = null;
         }
+
       }
 
       // Remove customLabels set to false
