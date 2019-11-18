@@ -66,7 +66,7 @@ function paginate(query, options, callback) {
     ...options.customLabels
   };
 
-  const limit = parseInt(options.limit, 10) > 0 ? parseInt(options.limit, 10) : 10;
+  const limit = parseInt(options.limit, 10) > 0 ? parseInt(options.limit, 10) : 0;
 
   const isCallbackSpecified = typeof callback === 'function';
   const findOptions = options.options;
@@ -105,34 +105,37 @@ function paginate(query, options, callback) {
 
   const countPromise = this.countDocuments(query).exec();
 
-  const mQuery = this.find(query, projection, findOptions);
-  mQuery.select(select);
-  mQuery.sort(sort);
-  mQuery.lean(lean);
+  if (limit) {
+    const mQuery = this.find(query, projection, findOptions);
+    mQuery.select(select);
+    mQuery.sort(sort);
+    mQuery.lean(lean);
 
-  // Hack for mongo < v3.4
-  if (Object.keys(collation).length > 0) {
-    mQuery.collation(collation);
-  }
+    // Hack for mongo < v3.4
+    if (Object.keys(collation).length > 0) {
+      mQuery.collation(collation);
+    }
 
-  if (populate) {
-    mQuery.populate(populate);
-  }
+    if (populate) {
+      mQuery.populate(populate);
+    }
 
-  if (pagination) {
-    mQuery.skip(skip);
-    mQuery.limit(limit);
-  }
+    if (pagination) {
+      mQuery.skip(skip);
+      mQuery.limit(limit);
+    }
 
-  docsPromise = mQuery.exec();
+    docsPromise = mQuery.exec();
 
-  if (lean && leanWithId) {
-    docsPromise = docsPromise.then((docs) => {
-      docs.forEach((doc) => {
-        doc.id = String(doc._id);
+    if (lean && leanWithId) {
+      docsPromise = docsPromise.then((docs) => {
+        docs.forEach((doc) => {
+          doc.id = String(doc._id);
+        });
+        return docs;
       });
-      return docs;
-    });
+    }
+
   }
 
   return Promise.all([countPromise, docsPromise])
