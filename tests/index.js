@@ -273,7 +273,13 @@ describe('mongoose-paginate', function () {
 
   it('2dsphere', function () {
     var query = {
-      loc: { $geoWithin: { $center: [ [-10, 20], 999 ] } }
+      loc: {
+        $geoWithin: {
+          $center: [
+            [-10, 20], 999
+          ]
+        }
+      }
     };
 
     const myCustomLabels = {
@@ -296,6 +302,32 @@ describe('mongoose-paginate', function () {
     };
     return Book.paginate(query, options).then((result) => {
       expect(result.meta.total).to.equal(100);
+    });
+  });
+
+  it('all data (without pagination)', function () {
+    var query = {
+      title: {
+        $in: [/Book/i]
+      }
+    };
+
+    var options = {
+      pagination: false
+    };
+
+    return Book.paginate(query, options).then((result) => {
+      expect(result.docs).to.have.length(100);
+      expect(result.totalDocs).to.equal(100);
+      expect(result.limit).to.equal(100);
+      expect(result.page).to.equal(1);
+      expect(result.pagingCounter).to.equal(1);
+      expect(result.hasPrevPage).to.equal(false);
+      expect(result.hasNextPage).to.equal(false);
+      expect(result.prevPage).to.equal(null);
+      expect(result.nextPage).to.equal(null);
+      expect(result.totalPages).to.equal(1);
+
     });
   });
 
