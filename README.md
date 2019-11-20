@@ -123,6 +123,8 @@ Now developers can specify the return field names if they want. Below are the li
 * page
 * nextPage
 * prevPage
+* hasNextPage
+* hasPrevPage
 * totalPages
 * pagingCounter
 * meta
