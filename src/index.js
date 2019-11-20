@@ -150,6 +150,7 @@ function paginate(query, options, callback) {
 
       if (typeof offset !== 'undefined') {
         meta.offset = offset;
+        page = Math.ceil((offset + 1) / limit);
       }
 
       const pages = (limit > 0) ? (Math.ceil(count / limit) || 1) : null;
@@ -190,6 +191,17 @@ function paginate(query, options, callback) {
 
       // Remove customLabels set to false
       delete meta['false'];
+
+      if (limit == 0) {
+        meta[labelLimit] = 0;
+        meta[labelTotalPages] = null;
+        meta[labelPage] = null;
+        meta[labelPagingCounter] = null;
+        meta[labelPrevPage] = null;
+        meta[labelNextPage] = null;
+        meta[labelHasPrevPage] = false;
+        meta[labelHasNextPage] = false;
+      }
 
       if (labelMeta) {
         result = {
