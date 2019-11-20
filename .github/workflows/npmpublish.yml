@@ -34,6 +34,7 @@ jobs:
           node-version: 12
           registry-url: https://npm.pkg.github.com/
           scope: '@aravindnc'
+      - run: npm install
       - run: npm ci
       - run: npm publish
         env:
