@@ -13,6 +13,7 @@
  * @param {Number}              [options.offset=0] - Use offset or page to set skip position
  * @param {Number}              [options.page=1]
  * @param {Number}              [options.limit=10]
+ * @param {Object}              [options.read={}] - Determines the MongoDB nodes from which to read.
  * @param {Function}            [callback]
  *
  * @returns {Promise}
@@ -56,6 +57,7 @@ function paginate(query, options, callback) {
     leanWithId,
     populate,
     projection,
+    read,
     select,
     sort,
     pagination
@@ -76,7 +78,6 @@ function paginate(query, options, callback) {
   let skip;
 
   let docsPromise = [];
-  let docs = [];
 
   // Labels
   const labelDocs = customLabels.docs;
@@ -110,6 +111,15 @@ function paginate(query, options, callback) {
     mQuery.select(select);
     mQuery.sort(sort);
     mQuery.lean(lean);
+
+    if (read && read.pref) {
+      /**
+       * Determines the MongoDB nodes from which to read.
+       * @param read.pref one of the listed preference options or aliases
+       * @param read.tags optional tags for this query
+       */
+      mQuery.read(read.pref, read.tags);
+    }
 
     // Hack for mongo < v3.4
     if (Object.keys(collation).length > 0) {
