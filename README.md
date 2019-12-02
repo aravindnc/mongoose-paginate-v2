@@ -28,13 +28,13 @@ Add plugin to a schema and then use model `paginate` method:
 const mongoose         = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate-v2');
 
-const mySchema = new mongoose.Schema({ 
-  /* your schema definition */ 
+const mySchema = new mongoose.Schema({
+  /* your schema definition */
 });
 
 mySchema.plugin(mongoosePaginate);
 
-const myModel = mongoose.model('SampleModel',  mySchema); 
+const myModel = mongoose.model('SampleModel',  mySchema);
 
 myModel.paginate().then({}) // Usage
 ```
@@ -47,9 +47,9 @@ Returns promise
 
 * `[query]` {Object} - Query criteria. [Documentation](https://docs.mongodb.org/manual/tutorial/query-documents)
 * `[options]` {Object}
-  - `[select]` {Object | String} - Fields to return (by default returns all fields). [Documentation](http://mongoosejs.com/docs/api.html#query_Query-select) 
+  - `[select]` {Object | String} - Fields to return (by default returns all fields). [Documentation](http://mongoosejs.com/docs/api.html#query_Query-select)
   - `[collation]` {Object} - Specify the collation [Documentation](https://docs.mongodb.com/manual/reference/collation/)
-  - `[sort]` {Object | String} - Sort order. [Documentation](http://mongoosejs.com/docs/api.html#query_Query-sort) 
+  - `[sort]` {Object | String} - Sort order. [Documentation](http://mongoosejs.com/docs/api.html#query_Query-sort)
   - `[populate]` {Array | Object | String} - Paths which should be populated with other documents. [Documentation](http://mongoosejs.com/docs/api.html#query_Query-populate)
   - `[lean=false]` {Boolean} - Should return plain javascript objects instead of Mongoose documents?  [Documentation](http://mongoosejs.com/docs/api.html#query_Query-lean)
   - `[leanWithId=true]` {Boolean} - If `lean` and `leanWithId` are `true`, adds `id` field with string representation of `_id` to every document
@@ -58,6 +58,18 @@ Returns promise
   - `[limit=10]` {Number}
   - `[customLabels]` {Object} - Developers can provide custom labels for manipulating the response data.
   - `[pagination]` {Boolean} - If `pagination` is set to false, it will return all docs without adding limit condition. (Default: True)
+  - `[read]` {Object} - Determines the MongoDB nodes from which to read.
+    - Options
+      - `[pref]`: One of the listed preference options or aliases.
+      - `[tags]`: Optional tags for this query. (Must be used with `[pref]`)
+    - ```js
+      {
+        pref: 'secondary',
+        tags: [{
+          region: 'South'
+        }]
+      }
+      ```
 * `[callback(err, result)]` - If specified the callback is called once pagination results are retrieved or when an error has occurred
 
 **Return value**
@@ -69,7 +81,7 @@ Promise fulfilled with object having properties:
 * `limit` {Number} - Limit that was used
 * `hasPrevPage` {Bool} - Availability of prev page.
 * `hasNextPage` {Bool} - Availability of next page.
-* `page` {Number} - Current page number 
+* `page` {Number} - Current page number
 * `totalPages` {Number} - Total number of pages.
 * `offset` {Number} - Only if specified or default `page`/`offset` values were used
 * `prevPage` {Number} - Previous page number if available or NULL
@@ -104,7 +116,7 @@ Model.paginate({}, options, function(err, result) {
   // result.totalDocs = 100
   // result.limit = 10
   // result.page = 1
-  // result.totalPages = 10    
+  // result.totalPages = 10
   // result.hasNextPage = true
   // result.nextPage = 2
   // result.hasPrevPage = false
@@ -196,7 +208,7 @@ var options = {
   sort:     { date: -1 },
   populate: 'author',
   lean:     true,
-  offset:   20, 
+  offset:   20,
   limit:    10
 };
 
@@ -213,7 +225,7 @@ You can use `limit=0` to get only metadata:
 Model.paginate({}, { limit: 0 }).then(function(result) {
   // result.docs - empty array
   // result.totalDocs
-  // result.limit - 0    
+  // result.limit - 0
 });
 ```
 
@@ -224,7 +236,7 @@ config.js:
 ```javascript
 var mongoosePaginate = require('mongoose-paginate-v2');
 
-mongoosePaginate.paginate.options = { 
+mongoosePaginate.paginate.options = {
   lean:  true,
   limit: 20
 };
@@ -252,7 +264,7 @@ Model.paginate({}, options, function(err, result) {
   // result.totalDocs = 100
   // result.limit = 100
   // result.page = 1
-  // result.totalPages = 1    
+  // result.totalPages = 1
   // result.hasNextPage = false
   // result.nextPage = null
   // result.hasPrevPage = false
