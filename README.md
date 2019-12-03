@@ -58,18 +58,9 @@ Returns promise
   - `[limit=10]` {Number}
   - `[customLabels]` {Object} - Developers can provide custom labels for manipulating the response data.
   - `[pagination]` {Boolean} - If `pagination` is set to false, it will return all docs without adding limit condition. (Default: True)
-  - `[read]` {Object} - Determines the MongoDB nodes from which to read.
-    - Options
-      - `[pref]`: One of the listed preference options or aliases.
-      - `[tags]`: Optional tags for this query. (Must be used with `[pref]`)
-    - ```js
-      {
-        pref: 'secondary',
-        tags: [{
-          region: 'South'
-        }]
-      }
-      ```
+  - `[read]` {Object} - Determines the MongoDB nodes from which to read. Below are the available options.
+    - `[pref]`: One of the listed preference options or aliases.
+    - `[tags]`: Optional tags for this query. (Must be used with `[pref]`)
 * `[callback(err, result)]` - If specified the callback is called once pagination results are retrieved or when an error has occurred
 
 **Return value**
@@ -90,13 +81,6 @@ Promise fulfilled with object having properties:
 * `meta` {Object} - Object of pagination meta data (Default false).
 
 Please note that the above properties can be renamed by setting customLabel attribute.
-
-### Note
-There are few operators that this plugin does not support, below are the list and suggested replacements
-
-* $where: $expr
-* $near: $geoWithin with $center
-* $nearSphere: $geoWithin with $centerSphere
 
 ### Sample Usage
 
@@ -272,6 +256,39 @@ Model.paginate({}, options, function(err, result) {
   // result.pagingCounter = 1
 });
 ```
+
+#### Setting read preference.
+Determines the MongoDB nodes from which to read.
+
+```js
+const options = {
+  lean: true,
+  limit: 10,
+  page: 1,
+  read: {
+    pref: 'secondary',
+    tags: [{
+      region: 'South'
+    }]
+  }
+};
+    
+Model.paginate({}, options, function(err, result) {
+ // Result
+});
+```
+
+Below are some references to understand more about preferences,
+- https://github.com/Automattic/mongoose/blob/master/lib/query.js#L1008
+- https://docs.mongodb.com/manual/core/read-preference/
+- http://mongodb.github.io/node-mongodb-native/driver-articles/anintroductionto1_1and2_2.html#read-preferences
+
+## Note
+There are few operators that this plugin does not support, below are the list and suggested replacements,
+
+* $where: $expr
+* $near: $geoWithin with $center
+* $nearSphere: $geoWithin with $centerSphere
 
 ## License
 
