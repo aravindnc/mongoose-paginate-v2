@@ -80,7 +80,7 @@ Promise fulfilled with object having properties:
 * `pagingCounter` {Number} - The starting sl. number of first document.
 * `meta` {Object} - Object of pagination meta data (Default false).
 
-Please note that the above properties can be renamed by setting customLabel attribute.
+Please note that the above properties can be renamed by setting customLabels attribute.
 
 ### Sample Usage
 
