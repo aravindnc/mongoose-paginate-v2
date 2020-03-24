@@ -144,6 +144,37 @@ describe('mongoose-paginate', function () {
       expect(result.totalPages).to.equal(10);
     });
   });
+  
+  it('with offset and limit (not page) condition: offset > 0 < limit', function () {
+    var query = {
+      title: {
+        $in: [/Book/i]
+      }
+    };
+
+    var options = {
+      limit: 10,
+      offset: 5,
+      sort: {
+        _id: 1
+      },
+      lean: true
+    };
+
+    return Book.paginate(query, options).then((result) => {
+
+      expect(result.docs).to.have.length(10);
+      expect(result.totalDocs).to.equal(100);
+      expect(result.limit).to.equal(10);
+      expect(result.page).to.equal(1);
+      expect(result.pagingCounter).to.equal(1);
+      expect(result.hasPrevPage).to.equal(true);
+      expect(result.hasNextPage).to.equal(true);
+      expect(result.prevPage).to.equal(1);
+      expect(result.nextPage).to.equal(2);
+      expect(result.totalPages).to.equal(10);
+    });
+  });
 
   it('with limit=0 (metadata only)', function () {
     var query = {
