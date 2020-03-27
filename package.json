@@ -1,6 +1,6 @@
 {
 	"name": "mongoose-paginate-v2",
-	"version": "1.3.6",
+	"version": "1.3.7",
 	"description": "A cursor based custom pagination library for Mongoose with customizable labels.",
 	"main": "dist/index.js",
 	"scripts": {
