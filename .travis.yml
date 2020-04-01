@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - node
+  - lts/*
+  - 10
+  - 9
+  - 8
+install:
+  - npm ci
+script:
+  - npm test
