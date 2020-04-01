@@ -34,7 +34,7 @@ describe('mongoose-paginate', function () {
 
   before(function (done) {
     mongoose.connect(MONGO_URI, {
-			useUnifiedTopology: true,
+      useUnifiedTopology: true,
       useNewUrlParser: true
     }, done);
   });
