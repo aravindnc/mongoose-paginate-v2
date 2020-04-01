@@ -58,6 +58,7 @@ Returns promise
   - `[limit=10]` {Number}
   - `[customLabels]` {Object} - Developers can provide custom labels for manipulating the response data.
   - `[pagination]` {Boolean} - If `pagination` is set to false, it will return all docs without adding limit condition. (Default: True)
+  - `[forceCountFn]` {Boolean} - Set this to true, if you need to support $geo queries.
   - `[read]` {Object} - Determines the MongoDB nodes from which to read. Below are the available options.
     - `[pref]`: One of the listed preference options or aliases.
     - `[tags]`: Optional tags for this query. (Must be used with `[pref]`)
@@ -284,11 +285,28 @@ Below are some references to understand more about preferences,
 - http://mongodb.github.io/node-mongodb-native/driver-articles/anintroductionto1_1and2_2.html#read-preferences
 
 ## Note
-There are few operators that this plugin does not support, below are the list and suggested replacements,
+There are few operators that this plugin does not support natively, below are the list and suggested replacements,
 
 * $where: $expr
 * $near: $geoWithin with $center
 * $nearSphere: $geoWithin with $centerSphere
+
+But we have added another option. So if you need to use $near and $nearSphere please set `forceCountFn` as true and try running the query.
+
+```js
+const options = {
+  lean: true,
+  limit: 10,
+  page: 1,
+  forceCountFn: true
+};
+    
+Model.paginate({}, options, function(err, result) {
+ // Result
+});
+```
+
+
 
 ## License
 
