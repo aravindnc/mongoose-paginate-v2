@@ -142,7 +142,7 @@ describe('mongoose-paginate', function () {
     });
   });
 
-	it('last page with page and limit', function() {
+  it('last page with page and limit', function() {
     var query = {
       title: {
         $in: [/Book/i],
