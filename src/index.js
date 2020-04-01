@@ -40,7 +40,8 @@ const defaultOptions = {
   projection: {},
   select: '',
   options: {},
-  pagination: true
+  pagination: true,
+  forceCountFn: false
 };
 
 function paginate(query, options, callback) {
@@ -60,7 +61,8 @@ function paginate(query, options, callback) {
     read,
     select,
     sort,
-    pagination
+    pagination,
+    forceCountFn
   } = options;
 
   const customLabels = {
@@ -104,7 +106,13 @@ function paginate(query, options, callback) {
     skip = offset;
   }
 
-  const countPromise = this.countDocuments(query).exec();
+  let countPromise;
+
+  if (forceCountFn === true) {
+    countPromise = this.count(query).exec();
+  } else {
+    countPromise = this.countDocuments(query).exec();
+  }
 
   if (limit) {
     const mQuery = this.find(query, projection, findOptions);

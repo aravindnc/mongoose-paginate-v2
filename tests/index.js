@@ -389,11 +389,9 @@ describe('mongoose-paginate', function () {
   it('2dsphere', function () {
     var query = {
       loc: {
-        $geoWithin: {
-          $center: [
-            [-10, 20], 999
-          ]
-        }
+        $nearSphere: 
+          [ 50, 50 ]
+        
       }
     };
 
@@ -413,6 +411,7 @@ describe('mongoose-paginate', function () {
         title: 1,
         price: 1
       },
+	    forceCountFn: true,
       customLabels: myCustomLabels
     };
     return Book.paginate(query, options).then((result) => {
