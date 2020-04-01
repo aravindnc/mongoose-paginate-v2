@@ -185,7 +185,7 @@ function paginate(query, options, callback) {
         if (page > 1) {
           meta[labelHasPrevPage] = true;
           meta[labelPrevPage] = (page - 1);
-        } else if (page == 1 && offset !== 0) {
+        } else if (page == 1 && offset && offset !== 0) {
           meta[labelHasPrevPage] = true;
           meta[labelPrevPage] = 1;
         } else {
