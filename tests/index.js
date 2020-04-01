@@ -34,6 +34,7 @@ describe('mongoose-paginate', function () {
 
   before(function (done) {
     mongoose.connect(MONGO_URI, {
+			useUnifiedTopology: true,
       useNewUrlParser: true
     }, done);
   });
@@ -140,7 +141,34 @@ describe('mongoose-paginate', function () {
       expect(result.totalPages).to.equal(10);
     });
   });
-  
+
+	it('last page with page and limit', function() {
+    var query = {
+      title: {
+        $in: [/Book/i],
+      },
+    };
+
+    var options = {
+      limit: 10,
+      page: 10,
+      lean: true,
+    };
+
+    return Book.paginate(query, options).then(result => {
+			expect(result.docs).to.have.length(10);
+      expect(result.totalDocs).to.equal(100);
+      expect(result.limit).to.equal(10);
+      expect(result.page).to.equal(10);
+      expect(result.pagingCounter).to.equal(91);
+      expect(result.hasPrevPage).to.equal(true);
+      expect(result.hasNextPage).to.equal(false);
+      expect(result.prevPage).to.equal(9);
+      expect(result.nextPage).to.equal(null);
+      expect(result.totalPages).to.equal(10);
+    });
+  });
+
   it('with offset and limit (not page)', function () {
     var query = {
       title: {
