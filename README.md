@@ -63,6 +63,7 @@ Returns promise
   - `[read]` {Object} - Determines the MongoDB nodes from which to read. Below are the available options.
     - `[pref]`: One of the listed preference options or aliases.
     - `[tags]`: Optional tags for this query. (Must be used with `[pref]`)
+  - `[options]` {Object} - Options passed to Mongoose's `find()` function
 * `[callback(err, result)]` - If specified the callback is called once pagination results are retrieved or when an error has occurred
 
 **Return value**
