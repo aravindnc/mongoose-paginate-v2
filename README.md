@@ -15,6 +15,11 @@ If you are looking for aggregate query pagination, use this one [mongoose-aggreg
 
 [![NPM](https://nodei.co/npm/mongoose-paginate-v2.png?downloads=true&downloadRank=true&stars=true)](https://www.npmjs.com/package/mongoose-paginate-v2)
 
+## Why This Plugin
+mongoose-paginate-v2 is a cursor based pagination library having a page wrapper. The plugin can be used as both page as well as cusror based pagination. The main usage of the plugin is you can alter the return value keys directly in the query itself so that you don't need any extra code for transformation.
+
+The below documentation is not perfect. Feel free to contribute. :)
+
 ## Installation
 
 ```sh
@@ -52,6 +57,7 @@ Returns promise
   - `[collation]` {Object} - Specify the collation [Documentation](https://docs.mongodb.com/manual/reference/collation/)
   - `[sort]` {Object | String} - Sort order. [Documentation](http://mongoosejs.com/docs/api.html#query_Query-sort)
   - `[populate]` {Array | Object | String} - Paths which should be populated with other documents. [Documentation](http://mongoosejs.com/docs/api.html#query_Query-populate)
+  - `[projection]` {String | Object} - Get/set the query projection. [Documentation](https://mongoosejs.com/docs/api/query.html#query_Query-projection)
   - `[lean=false]` {Boolean} - Should return plain javascript objects instead of Mongoose documents?  [Documentation](http://mongoosejs.com/docs/api.html#query_Query-lean)
   - `[leanWithId=true]` {Boolean} - If `lean` and `leanWithId` are `true`, adds `id` field with string representation of `_id` to every document
   - `[offset=0]` {Number} - Use `offset` or `page` to set skip position
@@ -63,8 +69,8 @@ Returns promise
   - `[read]` {Object} - Determines the MongoDB nodes from which to read. Below are the available options.
     - `[pref]`: One of the listed preference options or aliases.
     - `[tags]`: Optional tags for this query. (Must be used with `[pref]`)
-  - `[options]` {Object} - Options passed to Mongoose's `find()` function
-* `[callback(err, result)]` - If specified the callback is called once pagination results are retrieved or when an error has occurred
+  - `[options]` {Object} - Options passed to Mongoose's `find()` function. [Documentation](https://mongoosejs.com/docs/api.html#query_Query-setOptions)
+* `[callback(err, result)]` - If specified, the callback is called once pagination results are retrieved or when an error has occurred
 
 **Return value**
 
