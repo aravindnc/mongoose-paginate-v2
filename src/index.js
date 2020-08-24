@@ -109,9 +109,9 @@ function paginate(query, options, callback) {
   let countPromise;
 
   if (forceCountFn === true) {
-    countPromise = this.count(query).exec();
+    countQuery = this.count(query);
   } else {
-    countPromise = this.countDocuments(query).exec();
+    countQuery = this.countDocuments(query);
   }
 
   if (limit) {
@@ -132,6 +132,7 @@ function paginate(query, options, callback) {
     // Hack for mongo < v3.4
     if (Object.keys(collation).length > 0) {
       mQuery.collation(collation);
+      countPromise = countQuery.collation(collation).exec();
     }
 
     if (populate) {
