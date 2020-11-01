@@ -65,6 +65,7 @@ Returns promise
   - `[limit=10]` {Number}
   - `[customLabels]` {Object} - Developers can provide custom labels for manipulating the response data.
   - `[pagination]` {Boolean} - If `pagination` is set to false, it will return all docs without adding limit condition. (Default: True)
+  - `[estimatedDocumentCount]` - Use estimatedDocumentCount instead of countDocuments since it is faster for larger collections. If you need a accurate but slower count result set it to false. (Default: true)
   - `[forceCountFn]` {Boolean} - Set this to true, if you need to support $geo queries.
   - `[read]` {Object} - Determines the MongoDB nodes from which to read. Below are the available options.
     - `[pref]`: One of the listed preference options or aliases.
