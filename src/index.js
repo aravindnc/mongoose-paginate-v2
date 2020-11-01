@@ -156,7 +156,9 @@ function paginate(query, options, callback) {
     if (lean && leanWithId) {
       docsPromise = docsPromise.then((docs) => {
         docs.forEach((doc) => {
-          doc.id = String(doc._id);
+			if(doc._id) {
+				doc.id = String(doc._id);
+			}
         });
         return docs;
       });
