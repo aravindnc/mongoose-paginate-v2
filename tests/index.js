@@ -251,7 +251,6 @@ describe('mongoose-paginate', function () {
     };
 
     return Book.paginate(query, options).then((result) => {
-
       expect(result.docs).to.have.length(0);
       expect(result.totalDocs).to.equal(12);
       expect(result.limit).to.equal(0);

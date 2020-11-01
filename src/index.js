@@ -13,7 +13,7 @@
  * @param {Number}              [options.offset=0] - Use offset or page to set skip position
  * @param {Number}              [options.page=1]
  * @param {Number}              [options.limit=10]
- * @param {Boolean}             [options.estimatedDocumentCount=true] - Enable estimatedDocumentCount use for countPromise evaluation
+ * @param {Boolean}             [options.useEstimatedCount=true] - Enable estimatedDocumentCount for larger datasets. As the name says, the count may not abe accurate.
  * @param {Object}              [options.read={}] - Determines the MongoDB nodes from which to read.
  * @param {Function}            [callback]
  *
@@ -42,7 +42,7 @@ const defaultOptions = {
   select: '',
   options: {},
   pagination: true,
-  estimatedDocumentCount: true,
+  useEstimatedCount: false,
   forceCountFn: false
 };
 
@@ -64,7 +64,7 @@ function paginate(query, options, callback) {
     select,
     sort,
     pagination,
-    estimatedDocumentCount,
+    useEstimatedCount,
     forceCountFn
   } = options;
 
@@ -114,10 +114,12 @@ function paginate(query, options, callback) {
   if (forceCountFn === true) {
     // Deprecated since starting from MongoDB Node.JS driver v3.1 
     countPromise = this.count(query).exec();
-  } else if (estimatedDocumentCount === true) {
-    countPromise = this.estimatedDocumentCount(query).exec()
-  } else{
-    countPromise = this.countDocuments(query).exec();
+  } else {
+	if (useEstimatedCount === true) {
+		countPromise = this.useEstimatedCount(query).exec()
+	} else {
+		countPromise = this.countDocuments(query).exec();
+	}
   }
 
   if (limit) {

@@ -1,68 +1,68 @@
 {
-	"name": "mongoose-paginate-v2",
-	"version": "1.3.9",
-	"description": "A cursor based custom pagination library for Mongoose with customizable labels.",
-	"main": "dist/index.js",
-	"scripts": {
-		"pretest": "npm run build",
-		"test": "./node_modules/.bin/mocha tests/*.js -R spec --ui bdd --timeout 9999999",
-		"build": "babel src -d dist",
-		"prepublish": "npm run test"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/aravindnc/mongoose-paginate-v2.git"
-	},
-	"keywords": [
-		"mongoose",
-		"pagination",
-		"plugin",
-		"mongodb",
-		"paginate",
-		"paging",
-		"next",
-		"prev",
-		"nextpage",
-		"prevpage",
-		"total",
-		"paginator",
-		"plugin"
-	],
-	"author": "Aravind NC <aravind_n_c@yahoo.co.in> (https://aravindnc.com)",
-	"contributors": [
-		"Fernando López Guevara (fernando.lguevara@gmail.com)"
-	],
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/aravindnc/mongoose-paginate-v2/issues"
-	},
-	"homepage": "https://github.com/aravindnc/mongoose-paginate-v2#readme",
-	"dependencies": {},
-	"devDependencies": {
-		"@babel/cli": "^7.4.3",
-		"@babel/core": "^7.4.3",
-		"@babel/plugin-proposal-class-properties": "^7.0.0",
-		"@babel/plugin-proposal-decorators": "^7.0.0",
-		"@babel/plugin-proposal-do-expressions": "^7.0.0",
-		"@babel/plugin-proposal-export-default-from": "^7.0.0",
-		"@babel/plugin-proposal-export-namespace-from": "^7.0.0",
-		"@babel/plugin-proposal-function-bind": "^7.0.0",
-		"@babel/plugin-proposal-function-sent": "^7.0.0",
-		"@babel/plugin-proposal-json-strings": "^7.0.0",
-		"@babel/plugin-proposal-logical-assignment-operators": "^7.0.0",
-		"@babel/plugin-proposal-nullish-coalescing-operator": "^7.0.0",
-		"@babel/plugin-proposal-numeric-separator": "^7.0.0",
-		"@babel/plugin-proposal-optional-chaining": "^7.0.0",
-		"@babel/plugin-proposal-pipeline-operator": "^7.0.0",
-		"@babel/plugin-proposal-throw-expressions": "^7.0.0",
-		"@babel/plugin-syntax-dynamic-import": "^7.0.0",
-		"@babel/plugin-syntax-import-meta": "^7.0.0",
-		"@babel/preset-env": "^7.3.1",
-		"chai": "^4.2.0",
-		"mocha": "^6.0.1",
-		"mongoose": "^5.2.4"
-	},
-	"engines": {
-		"node": ">=4.0.0"
-	}
+  "name": "mongoose-paginate-v2",
+  "version": "1.3.10",
+  "description": "A cursor based custom pagination library for Mongoose with customizable labels.",
+  "main": "dist/index.js",
+  "scripts": {
+    "pretest": "npm run build",
+    "test": "./node_modules/.bin/mocha tests/*.js -R spec --ui bdd --timeout 9999999",
+    "build": "babel src -d dist",
+    "prepublish": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aravindnc/mongoose-paginate-v2.git"
+  },
+  "keywords": [
+    "mongoose",
+    "pagination",
+    "plugin",
+    "mongodb",
+    "paginate",
+    "paging",
+    "next",
+    "prev",
+    "nextpage",
+    "prevpage",
+    "total",
+    "paginator",
+    "plugin"
+  ],
+  "author": "Aravind NC <aravind_n_c@yahoo.co.in> (https://aravindnc.com)",
+  "contributors": [
+    "Fernando López Guevara (fernando.lguevara@gmail.com)"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aravindnc/mongoose-paginate-v2/issues"
+  },
+  "homepage": "https://github.com/aravindnc/mongoose-paginate-v2#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/plugin-proposal-decorators": "^7.0.0",
+    "@babel/plugin-proposal-do-expressions": "^7.0.0",
+    "@babel/plugin-proposal-export-default-from": "^7.0.0",
+    "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
+    "@babel/plugin-proposal-function-bind": "^7.0.0",
+    "@babel/plugin-proposal-function-sent": "^7.0.0",
+    "@babel/plugin-proposal-json-strings": "^7.0.0",
+    "@babel/plugin-proposal-logical-assignment-operators": "^7.0.0",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.0.0",
+    "@babel/plugin-proposal-numeric-separator": "^7.0.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.0.0",
+    "@babel/plugin-proposal-pipeline-operator": "^7.0.0",
+    "@babel/plugin-proposal-throw-expressions": "^7.0.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "@babel/plugin-syntax-import-meta": "^7.0.0",
+    "@babel/preset-env": "^7.3.1",
+    "chai": "^4.2.0",
+    "mocha": "^6.0.1",
+    "mongoose": "^5.2.4"
+  },
+  "engines": {
+    "node": ">=4.0.0"
+  }
 }
