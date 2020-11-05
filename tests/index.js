@@ -2,6 +2,7 @@
 
 let mongoose = require('mongoose');
 let expect = require('chai').expect;
+let assert = require('chai').assert;
 let mongoosePaginate = require('../dist/index');
 
 let MONGO_URI = 'mongodb://localhost/mongoose_paginate_test';
@@ -469,6 +470,15 @@ describe('mongoose-paginate', function () {
       expect(result.nextPage).to.equal(null);
       expect(result.totalPages).to.equal(1);
 
+    });
+  });
+
+  it('estimated count works', function (done) {
+    Book.paginate({}, { useEstimatedCount: true }, function (err, result) {
+      expect(err).to.be.null;
+      expect(result).to.be.an.instanceOf(Object);
+      assert.isNumber(result.totalDocs, 'totalDocs is a number');
+      done();
     });
   });
 

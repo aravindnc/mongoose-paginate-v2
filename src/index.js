@@ -116,7 +116,7 @@ function paginate(query, options, callback) {
     countPromise = this.count(query).exec();
   } else {
 	if (useEstimatedCount === true) {
-		countPromise = this.useEstimatedCount(query).exec()
+		countPromise = this.estimatedDocumentCount().exec()
 	} else {
 		countPromise = this.countDocuments(query).exec();
 	}
