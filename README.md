@@ -315,14 +315,6 @@ Model.paginate({}, options, function(err, result) {
 });
 ```
 
-## Changelog
-[v1.3.10] - 1/11/2020
-- Added support for estimatedCountDocuments for larger datasets. Set useEstimatedCount=true
-
-[v1.3.11] - 6/11/2020
-- Fixes to estimateDocumentCount implementation.
-- Package version updates to support Node v12.
-
 ## License
 
 [MIT](LICENSE)
