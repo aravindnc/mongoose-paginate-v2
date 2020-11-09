@@ -7,7 +7,23 @@
     "pretest": "npm run build",
     "test": "./node_modules/.bin/mocha tests/*.js -R spec --ui bdd --timeout 9999999",
     "build": "babel src -d dist",
+    "lint": "./node_modules/.bin/eslint \"tests\" \"src\" \".eslintrc.js\" --fix",
+    "prettier": "./node_modules/.bin/prettier --write \"{src,tests}/**/*.js\" \"*.md\"",
     "prepublish": "npm run test"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "./node_modules/.bin/lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "./node_modules/.bin/eslint --fix",
+      "./node_modules/.bin/prettier --write"
+    ],
+    "*.md": [
+      "./node_modules/.bin/prettier --write"
+    ]
   },
   "repository": {
     "type": "git",
@@ -58,9 +74,15 @@
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "@babel/plugin-syntax-import-meta": "^7.10.4",
     "@babel/preset-env": "^7.12.1",
+    "babel-eslint": "^10.1.0",
     "chai": "^4.2.0",
+    "eslint": "^7.13.0",
+    "eslint-config-prettier": "^6.15.0",
+    "husky": "^4.3.0",
+    "lint-staged": "^10.5.1",
     "mocha": "^8.2.1",
-    "mongoose": "^5.10.12"
+    "mongoose": "^5.10.12",
+    "prettier": "^2.1.2"
   },
   "engines": {
     "node": ">=4.0.0"
