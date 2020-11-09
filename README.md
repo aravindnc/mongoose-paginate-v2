@@ -330,17 +330,6 @@ Model.paginate({}, options, function (err, result) {
 - Optionally you can manually run `npm run lint && npm run prettier` to lint and format every relevant file
 - If using VS Code, install eslint and prettier for easy editor integration.
 
-## Changelog
-
-[v1.3.10] - 1/11/2020
-
-- Added support for estimatedCountDocuments for larger datasets. Set useEstimatedCount=true
-
-[v1.3.11] - 6/11/2020
-
-- Fixes to estimateDocumentCount implementation.
-- Package version updates to support Node v12.
-
 ## License
 
 [MIT](LICENSE)
