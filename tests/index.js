@@ -476,6 +476,42 @@ describe('mongoose-paginate', function () {
     });
   });
 
+  it('count Custom Fn works', function (done) {
+    Book.paginate(
+      {},
+      {
+        useCustomCountFn: function () {
+          return 100;
+        },
+      },
+      function (err, result) {
+        expect(err).to.be.null;
+        expect(result).to.be.an.instanceOf(Object);
+        assert.isNumber(result.totalDocs, 'totalDocs is a number');
+        expect(result.totalDocs).to.equal(100);
+        done();
+      }
+    );
+  });
+
+  it('count Custom Fn with Promise return works', function (done) {
+    Book.paginate(
+      {},
+      {
+        useCustomCountFn: function () {
+          return Promise.resolve(100);
+        },
+      },
+      function (err, result) {
+        expect(err).to.be.null;
+        expect(result).to.be.an.instanceOf(Object);
+        assert.isNumber(result.totalDocs, 'totalDocs is a number');
+        expect(result.totalDocs).to.equal(100);
+        done();
+      }
+    );
+  });
+
   after(function (done) {
     mongoose.connection.db.dropDatabase(done);
   });

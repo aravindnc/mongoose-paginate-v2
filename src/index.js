@@ -14,6 +14,7 @@
  * @param {Number}              [options.page=1]
  * @param {Number}              [options.limit=10]
  * @param {Boolean}             [options.useEstimatedCount=true] - Enable estimatedDocumentCount for larger datasets. As the name says, the count may not abe accurate.
+ * @param {Function}            [options.useCustomCountFn=false] - use custom function for count datasets.
  * @param {Object}              [options.read={}] - Determines the MongoDB nodes from which to read.
  * @param {Function}            [callback]
  *
@@ -43,6 +44,7 @@ const defaultOptions = {
   options: {},
   pagination: true,
   useEstimatedCount: false,
+  useCustomCountFn: false,
   forceCountFn: false,
 };
 
@@ -65,6 +67,7 @@ function paginate(query, options, callback) {
     sort,
     pagination,
     useEstimatedCount,
+    useCustomCountFn,
     forceCountFn,
   } = options;
 
@@ -118,6 +121,8 @@ function paginate(query, options, callback) {
   } else {
     if (useEstimatedCount === true) {
       countPromise = this.estimatedDocumentCount().exec();
+    } else if (typeof useCustomCountFn === 'function') {
+      countPromise = useCustomCountFn();
     } else {
       countPromise = this.countDocuments(query).exec();
     }
