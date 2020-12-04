@@ -279,7 +279,7 @@ If you need to use your own custom count function, then set `useCustomCountFn` a
 const options = {
   useCustomCountFn: function () {
     return Promise.resolve(100);
-  }
+  },
 };
 
 Model.paginate({}, options, function (err, result) {

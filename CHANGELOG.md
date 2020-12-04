@@ -1,11 +1,12 @@
 # Changelog
 
 ## v1.3.12
+
 [2020-12-04]
 
 ### Added
-- New option for custom count function.
 
+- New option for custom count function.
 
 ## v1.3.11
 
