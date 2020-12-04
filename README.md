@@ -271,6 +271,22 @@ Model.paginate({}, options, function (err, result) {
 });
 ```
 
+#### Using custom count function
+
+If you need to use your own custom count function, then set `useCustomCountFn` as your custom count function. Make sure the function is returning count as a **promise**.
+
+```javascript
+const options = {
+  useCustomCountFn: function () {
+    return Promise.resolve(100);
+  }
+};
+
+Model.paginate({}, options, function (err, result) {
+  // result.docs
+});
+```
+
 #### Setting read preference.
 
 Determines the MongoDB nodes from which to read.
