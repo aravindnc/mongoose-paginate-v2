@@ -349,7 +349,7 @@ Model.paginate({}, options, function (err, result) {
 
 ## Changelog
 
-[CHANGELOG.md](View Changelog)
+[View Changelog](CHANGELOG.md)
 
 ## License
 
