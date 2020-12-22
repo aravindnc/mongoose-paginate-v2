@@ -130,6 +130,11 @@ function paginate(query, options, callback) {
 
   if (limit) {
     const mQuery = this.find(query, projection, findOptions);
+
+    if (populate) {
+      mQuery.populate(populate);
+    }
+
     mQuery.select(select);
     mQuery.sort(sort);
     mQuery.lean(lean);
@@ -146,10 +151,6 @@ function paginate(query, options, callback) {
     // Hack for mongo < v3.4
     if (Object.keys(collation).length > 0) {
       mQuery.collation(collation);
-    }
-
-    if (populate) {
-      mQuery.populate(populate);
     }
 
     if (pagination) {

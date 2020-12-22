@@ -347,6 +347,10 @@ Model.paginate({}, options, function (err, result) {
 - Optionally you can manually run `npm run lint && npm run prettier` to lint and format every relevant file
 - If using VS Code, install eslint and prettier for easy editor integration.
 
+## Changelog
+
+[changelog.md](changelog.md)
+
 ## License
 
 [MIT](LICENSE)

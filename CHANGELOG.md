@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.3.13
+
+[2020-12-22]
+
+### Fixed
+
+- Sorting issue after population.
+
 ## v1.3.12
 
 [2020-12-04]
