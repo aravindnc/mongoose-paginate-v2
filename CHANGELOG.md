@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.14
+
+[2021-01-27]
+
+- Fixed issue hasPrevPage and prevPage returned values are not correct at page=1 (#119)
+
 ## v1.3.13
 
 [2020-12-22]
