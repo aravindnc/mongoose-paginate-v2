@@ -117,14 +117,14 @@ function paginate(query, options, callback) {
 
   if (forceCountFn === true) {
     // Deprecated since starting from MongoDB Node.JS driver v3.1
-    countPromise = this.count(query).exec();
+    countPromise = this.count(query).collation(collation).exec();
   } else {
     if (useEstimatedCount === true) {
       countPromise = this.estimatedDocumentCount().exec();
     } else if (typeof useCustomCountFn === 'function') {
       countPromise = useCustomCountFn();
     } else {
-      countPromise = this.countDocuments(query).exec();
+      countPromise = this.countDocuments(query).collation(collation).exec();
     }
   }
 
