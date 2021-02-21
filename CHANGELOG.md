@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.15
+
+[2021-02-21]
+
+- Fixed issues where no results or incorrect count are returned when using collations.
+
 ## v1.3.14
 
 [2021-01-27]
