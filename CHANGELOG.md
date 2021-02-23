@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.16
+
+[2021-02-24]
+
+- Collation fix for MongoDB v3.4 and less.
+
 ## v1.3.15
 
 [2021-02-21]
