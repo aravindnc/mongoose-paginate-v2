@@ -88,7 +88,7 @@ Promise fulfilled with object having properties:
 - `offset` {Number} - Only if specified or default `page`/`offset` values were used
 - `prevPage` {Number} - Previous page number if available or NULL
 - `nextPage` {Number} - Next page number if available or NULL
-- `pagingCounter` {Number} - The starting sl. number of first document.
+- `pagingCounter` {Number} - The starting index/serial/chronological number of first document in current page. (Eg: if page=2 and limit=10, then pagingCounter will be 11)
 - `meta` {Object} - Object of pagination meta data (Default false).
 
 Please note that the above properties can be renamed by setting customLabels attribute.
