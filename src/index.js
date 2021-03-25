@@ -105,7 +105,7 @@ function paginate(query, options, callback) {
     offset = parseInt(options.offset, 10);
     skip = offset;
   } else if (Object.prototype.hasOwnProperty.call(options, 'page')) {
-    page = parseInt(options.page, 10);
+    page = parseInt(options.page, 10) < 1 ? 1 : parseInt(options.page, 10);
     skip = (page - 1) * limit;
   } else {
     offset = 0;
