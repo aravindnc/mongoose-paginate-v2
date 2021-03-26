@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.17
+
+[2021-03-26]
+
+- Fix for page value is less than 1
+
 ## v1.3.16
 
 [2021-02-24]
