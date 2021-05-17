@@ -76,8 +76,11 @@ function paginate(query, options, callback) {
     ...options.customLabels,
   };
 
-  const limit =
-    parseInt(options.limit, 10) > 0 ? parseInt(options.limit, 10) : 0;
+  let limit = defaultOptions.limit;
+
+  if (pagination) {
+    limit = parseInt(options.limit, 10) > 0 ? parseInt(options.limit, 10) : 0;
+  }
 
   const isCallbackSpecified = typeof callback === 'function';
   const findOptions = options.options;
@@ -111,6 +114,10 @@ function paginate(query, options, callback) {
     offset = 0;
     page = 1;
     skip = offset;
+  }
+
+  if (!pagination) {
+    page = 1;
   }
 
   let countPromise;
@@ -232,9 +239,9 @@ function paginate(query, options, callback) {
 
       if (limit == 0) {
         meta[labelLimit] = 0;
-        meta[labelTotalPages] = null;
-        meta[labelPage] = null;
-        meta[labelPagingCounter] = null;
+        meta[labelTotalPages] = 1;
+        meta[labelPage] = 1;
+        meta[labelPagingCounter] = 1;
         meta[labelPrevPage] = null;
         meta[labelNextPage] = null;
         meta[labelHasPrevPage] = false;

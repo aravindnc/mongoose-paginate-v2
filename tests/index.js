@@ -280,13 +280,13 @@ describe('mongoose-paginate', function () {
       expect(result.docs).to.have.length(0);
       expect(result.totalDocs).to.equal(12);
       expect(result.limit).to.equal(0);
-      expect(result.page).to.equal(null);
-      expect(result.pagingCounter).to.equal(null);
+      expect(result.page).to.equal(1);
+      expect(result.pagingCounter).to.equal(1);
       expect(result.hasPrevPage).to.equal(false);
       expect(result.hasNextPage).to.equal(false);
       expect(result.prevPage).to.equal(null);
       expect(result.nextPage).to.equal(null);
-      expect(result.totalPages).to.equal(null);
+      expect(result.totalPages).to.equal(1);
     });
   });
 
@@ -537,6 +537,33 @@ describe('mongoose-paginate', function () {
         done();
       }
     );
+  });
+
+  it('pagination=false, limit/page=undefined -> return all docs', function () {
+    var query = {
+      title: {
+        $in: [/Book/i],
+      },
+    };
+
+    var options = {
+      pagination: false,
+      page: undefined,
+      limit: undefined,
+    };
+
+    return Book.paginate(query, options).then((result) => {
+      expect(result.docs).to.have.length(100);
+      expect(result.totalDocs).to.equal(100);
+      expect(result.limit).to.equal(100);
+      expect(result.page).to.equal(1);
+      expect(result.pagingCounter).to.equal(1);
+      expect(result.hasPrevPage).to.equal(false);
+      expect(result.hasNextPage).to.equal(false);
+      expect(result.prevPage).to.equal(null);
+      expect(result.nextPage).to.equal(null);
+      expect(result.totalPages).to.equal(1);
+    });
   });
 
   after(function (done) {
