@@ -249,9 +249,9 @@ describe('mongoose-paginate', function () {
       expect(result.limit).to.equal(10);
       expect(result.page).to.equal(1);
       expect(result.pagingCounter).to.equal(1);
-      expect(result.hasPrevPage).to.equal(false);
+      expect(result.hasPrevPage).to.equal(true);
       expect(result.hasNextPage).to.equal(true);
-      expect(result.prevPage).to.equal(null);
+      expect(result.prevPage).to.equal(1);
       expect(result.nextPage).to.equal(2);
       expect(result.totalPages).to.equal(10);
     });
