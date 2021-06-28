@@ -143,6 +143,34 @@ describe('mongoose-paginate', function () {
     });
   });
 
+  it('first page with page and limit, limit > doc.length, offset by one', function () {
+    var query = {
+      title: {
+        $in: [/Book/i],
+      },
+    };
+
+    var options = {
+      offset: 1,
+      limit: 200,
+      page: 1,
+      lean: true,
+    };
+
+    return Book.paginate(query, options).then((result) => {
+      expect(result.docs).to.have.length(100);
+      expect(result.totalDocs).to.equal(100);
+      expect(result.limit).to.equal(200);
+      expect(result.page).to.equal(1);
+      expect(result.pagingCounter).to.equal(1);
+      expect(result.hasPrevPage).to.equal(false);
+      expect(result.hasNextPage).to.equal(false);
+      expect(result.prevPage).to.equal(null);
+      expect(result.nextPage).to.equal(null);
+      expect(result.totalPages).to.equal(1);
+    });
+  });
+
   it('first page with page and limit', function () {
     var query = {
       title: {
