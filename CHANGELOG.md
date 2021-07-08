@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.1
+
+[2021-07-08]
+
+- Removed test case for allowDiskUse, which cause build to fail on lower MongoDB versions.
+
 ## v1.4.0
 
 [2021-07-08]
