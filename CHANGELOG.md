@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.0
+
+[2021-07-08]
+
+- Added allowDiskUse option as a workaround for QueryExceededMemoryLimitNoDiskUseAllowed error with large data sets.
+
 ## v1.3.18
 
 [2021-05-17]

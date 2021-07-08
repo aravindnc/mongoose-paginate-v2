@@ -566,6 +566,34 @@ describe('mongoose-paginate', function () {
     });
   });
 
+  it('with allowDiskUse=true', function () {
+    var query = {
+      title: {
+        $in: [/Book/i],
+      },
+    };
+
+    var options = {
+      limit: 10,
+      page: 5,
+      lean: true,
+      allowDiskUse: true,
+    };
+
+    return Book.paginate(query, options).then((result) => {
+      expect(result.docs).to.have.length(10);
+      expect(result.totalDocs).to.equal(100);
+      expect(result.limit).to.equal(10);
+      expect(result.page).to.equal(5);
+      expect(result.pagingCounter).to.equal(41);
+      expect(result.hasPrevPage).to.equal(true);
+      expect(result.hasNextPage).to.equal(true);
+      expect(result.prevPage).to.equal(4);
+      expect(result.nextPage).to.equal(6);
+      expect(result.totalPages).to.equal(10);
+    });
+  });
+
   after(function (done) {
     mongoose.connection.db.dropDatabase(done);
   });

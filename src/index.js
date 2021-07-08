@@ -46,6 +46,7 @@ const defaultOptions = {
   useEstimatedCount: false,
   useCustomCountFn: false,
   forceCountFn: false,
+  allowDiskUse: false,
 };
 
 function paginate(query, options, callback) {
@@ -69,6 +70,7 @@ function paginate(query, options, callback) {
     useEstimatedCount,
     useCustomCountFn,
     forceCountFn,
+    allowDiskUse,
   } = options;
 
   const customLabels = {
@@ -174,6 +176,14 @@ function paginate(query, options, callback) {
     if (pagination) {
       mQuery.skip(skip);
       mQuery.limit(limit);
+    }
+
+    try {
+      if (allowDiskUse === true) {
+        mQuery.allowDiskUse();
+      }
+    } catch (ex) {
+      console.error('Your MongoDB version does not support `allowDiskUse`.');
     }
 
     docsPromise = mQuery.exec();

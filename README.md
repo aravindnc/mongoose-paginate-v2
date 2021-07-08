@@ -6,7 +6,6 @@
 [![Build Status](https://travis-ci.com/aravindnc/mongoose-paginate-v2.svg?branch=master)](https://travis-ci.com/aravindnc/mongoose-paginate-v2)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/aravindnc/mongoose-paginate-v2/issues)
 [![Downloads](https://img.shields.io/npm/dm/mongoose-paginate-v2.svg)](https://img.shields.io/npm/dm/mongoose-paginate-v2.svg)
-[![HitCount](http://hits.dwyl.io/aravindnc/mongoose-paginate-v2.svg)](http://hits.dwyl.io/aravindnc/mongoose-paginate-v2)
 
 > A cursor based custom pagination library for [Mongoose](http://mongoosejs.com) with customizable labels.
 
@@ -68,6 +67,7 @@ Returns promise
   - `[useEstimatedCount]` - Enable [estimatedDocumentCount](https://docs.mongodb.com/manual/reference/method/db.collection.estimatedDocumentCount/) for larger datasets. Does not count based on given query, so the count will match entire collection size. (Default: False)
   - `[useCustomCountFn]` - Enable custom function for count datasets. (Default: False)
   - `[forceCountFn]` {Boolean} - Set this to true, if you need to support \$geo queries. (Default: False)
+  - `[allowDiskUse]` {Boolean} - Set this to true, which allows the MongoDB server to use more than 100 MB for query. This option can let you work around QueryExceededMemoryLimitNoDiskUseAllowed errors from the MongoDB server. (Default: False)
   - `[read]` {Object} - Determines the MongoDB nodes from which to read. Below are the available options.
     - `[pref]`: One of the listed preference options or aliases.
     - `[tags]`: Optional tags for this query. (Must be used with `[pref]`)
@@ -246,7 +246,7 @@ Model.paginate().then(function (result) {
 });
 ```
 
-#### Fetch all docs without pagination.
+#### Fetch all docs without pagination
 
 If you need to fetch all the documents in the collection without applying a limit. Then set `pagination` as false,
 
@@ -285,7 +285,7 @@ Model.paginate({}, options, function (err, result) {
 });
 ```
 
-#### Setting read preference.
+#### Setting read preference
 
 Determines the MongoDB nodes from which to read.
 
@@ -302,6 +302,24 @@ const options = {
       },
     ],
   },
+};
+
+Model.paginate({}, options, function (err, result) {
+  // Result
+});
+```
+
+#### AllowDiskUse for large datasets
+
+Sets the allowDiskUse option, which allows the MongoDB server to use more than 100 MB for query. This option can let you work around `QueryExceededMemoryLimitNoDiskUseAllowed` errors from the MongoDB server.
+
+**Note that this option requires MongoDB server >= 4.4. Setting this option is a no-op for MongoDB 4.2 and earlier.**
+
+```js
+const options = {
+  limit: 10,
+  page: 1,
+  allowDiskUse: true,
 };
 
 Model.paginate({}, options, function (err, result) {
