@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.2
+
+[2021-08-15]
+
+- Removed 'cursor' text across the project.
+
 ## v1.4.1
 
 [2021-07-08]
