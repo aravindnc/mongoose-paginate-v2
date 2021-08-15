@@ -8,7 +8,7 @@
 [![Downloads](https://img.shields.io/npm/dm/mongoose-paginate-v2.svg)](https://img.shields.io/npm/dm/mongoose-paginate-v2.svg)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Faravindnc%2Fmongoose-paginate-v2.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Faravindnc%2Fmongoose-paginate-v2?ref=badge_shield)
 
-> A cursor based custom pagination library for [Mongoose](http://mongoosejs.com) with customizable labels.
+> A custom pagination library for [Mongoose](http://mongoosejs.com) with customizable labels.
 
 If you are looking for aggregate query pagination, use this one [mongoose-aggregate-paginate-v2](https://github.com/aravindnc/mongoose-aggregate-paginate-v2)
 
@@ -16,7 +16,7 @@ If you are looking for aggregate query pagination, use this one [mongoose-aggreg
 
 ## Why This Plugin
 
-mongoose-paginate-v2 is a cursor based pagination library having a page wrapper. The plugin can be used as both page as well as cursor based pagination. The main usage of the plugin is you can alter the return value keys directly in the query itself so that you don't need any extra code for transformation. The initial idea of this plugin is loosely based on mongoose-paginate package by github.com/edwardhotchkiss/. So this can be considered as an upgraded version of mongoose-paginate with much more options.
+mongoose-paginate-v2 is a pagination library having a page wrapper. The main usage of the plugin is you can alter the return value keys directly in the query itself so that you don't need any extra code for transformation. The initial idea of this plugin is loosely based on mongoose-paginate package by github.com/edwardhotchkiss/. So this can be considered as an upgraded version of mongoose-paginate with much more options.
 
 The below documentation is not perfect. Feel free to contribute. :)
 
@@ -371,6 +371,5 @@ Model.paginate({}, options, function (err, result) {
 ## License
 
 [MIT](LICENSE)
-
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Faravindnc%2Fmongoose-paginate-v2.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Faravindnc%2Fmongoose-paginate-v2?ref=badge_large)
