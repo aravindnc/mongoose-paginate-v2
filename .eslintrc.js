@@ -4,13 +4,20 @@ module.exports = {
     node: true,
     mocha: true,
   },
-  extends: ['eslint:recommended', 'prettier'],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'prettier',
+  ],
   parserOptions: {
     ecmaVersion: 8,
     sourceType: 'module',
   },
-  parser: 'babel-eslint',
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint'],
   rules: {
     'linebreak-style': ['warn', 'unix'],
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/ban-types': 'off',
   },
 };
