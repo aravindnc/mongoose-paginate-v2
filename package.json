@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "pretest": "npm run build",
-    "test": "./node_modules/.bin/mocha -r ts-node/register tests/*/*.ts -R spec --ui bdd --timeout 9999999",
+    "test": "./node_modules/.bin/mocha -r ts-node/register tests/**/*.ts -R spec --ui bdd --timeout 9999999",
     "build": "tsc -p tsconfig.build.json",
     "lint": "./node_modules/.bin/eslint \"tests\" \"src\" \".eslintrc.js\" --fix",
     "prettier": "./node_modules/.bin/prettier --write \"{src,tests}/**/*.ts\" \"*.md\"",
