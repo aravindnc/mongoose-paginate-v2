@@ -235,6 +235,9 @@ function paginate(query, options, callback) {
         if (page > 1) {
           meta[labelHasPrevPage] = true;
           meta[labelPrevPage] = page - 1;
+        } else if (page == 1 && typeof offset !== 'undefined' && offset !== 0) {
+          meta[labelHasPrevPage] = true;
+          meta[labelPrevPage] = 1;
         }
 
         // Set next page
