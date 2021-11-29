@@ -158,14 +158,14 @@ describe('mongoose-paginate', function () {
     };
 
     return Book.paginate(query, options).then((result) => {
-      expect(result.docs).to.have.length(100);
+      expect(result.docs).to.have.length(99);
       expect(result.totalDocs).to.equal(100);
       expect(result.limit).to.equal(200);
       expect(result.page).to.equal(1);
       expect(result.pagingCounter).to.equal(1);
-      expect(result.hasPrevPage).to.equal(false);
+      expect(result.hasPrevPage).to.equal(true);
       expect(result.hasNextPage).to.equal(false);
-      expect(result.prevPage).to.equal(null);
+      expect(result.prevPage).to.equal(1);
       expect(result.nextPage).to.equal(null);
       expect(result.totalPages).to.equal(1);
     });
