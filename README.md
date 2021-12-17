@@ -247,6 +247,26 @@ Model.paginate().then(function (result) {
 });
 ```
 
+#### Use helper-class for passing query object into Model.paginate()
+
+For conveniently passing on all request query parameters into paginate(), without having to specify them all in the controller, you can use the PaginationParametersHelper-class. The example below is with express code, but can be applied to any request, where the query string has been parsed into an object.
+
+```javascript
+const { PaginationHelper } = require('mongoose-paginate-v2');
+
+// req.query = {
+//   page: 1,
+//   limit: 10,
+//   query: {"color": "blue", "published": true}
+// }
+//
+// Please note that req.query.query has to be a JSON-object
+
+req.get('/route', (req, res) => {
+  Model.paginate(new PaginationHelper(req.query).get()).then({});
+});
+```
+
 #### Fetch all docs without pagination
 
 If you need to fetch all the documents in the collection without applying a limit. Then set `pagination` as false,
