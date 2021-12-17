@@ -252,7 +252,7 @@ Model.paginate().then(function (result) {
 For conveniently passing on all request query parameters into paginate(), without having to specify them all in the controller, you can use the PaginationParametersHelper-class. The example below is with express code, but can be applied to any request, where the query string has been parsed into an object.
 
 ```javascript
-const { PaginationHelper } = require('mongoose-paginate-v2');
+const { PaginationParameters } = require('mongoose-paginate-v2');
 
 // req.query = {
 //   page: 1,
@@ -263,7 +263,7 @@ const { PaginationHelper } = require('mongoose-paginate-v2');
 // Please note that req.query.query has to be a JSON-object
 
 req.get('/route', (req, res) => {
-  Model.paginate(new PaginationHelper(req.query).get()).then({});
+  Model.paginate(new PaginationParameters(req.query).get()).then({});
 });
 ```
 
