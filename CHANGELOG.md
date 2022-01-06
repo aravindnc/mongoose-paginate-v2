@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.3
+
+[2022-01-06]
+
+- Fix hasPrevPage behaviour with limit > offset > 0
+
 ## v1.4.2
 
 [2021-08-15]
