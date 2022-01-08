@@ -4,6 +4,7 @@ class PaginationParametersHelper {
   }
 
   /**
+   * Handle boolean options
    * If the 'option'-Parameter is a string, check if it equals 'true'
    * If not, it should be a boolean, and can be returned as it is.
    *
@@ -15,6 +16,8 @@ class PaginationParametersHelper {
   }
 
   /**
+   * Handle options that are strings or objects (including arrays)
+   *
    * @param {object|string} option
    * @return {object|string}
    * */
@@ -36,14 +39,6 @@ class PaginationParametersHelper {
       // Fallback for parsing errors of objects
       return {};
     }
-  }
-
-  /**
-   * @param {string} option
-   * @return {number}
-   * */
-  integerOpt(option) {
-    return Number(option);
   }
 
   /**
@@ -71,7 +66,7 @@ class PaginationParametersHelper {
 
     const options = {};
 
-    // Instantiate a variables with all the possible options for Model.paginate()
+    // Instantiate variables with all the possible options for Model.paginate()
     const select = this.query.select,
       collation = this.query.collation,
       sort = this.query.sort,
@@ -91,7 +86,7 @@ class PaginationParametersHelper {
       read = this.query.read,
       mongooseOptions = this.query.options;
 
-    // If they are set, add them to the 'existingOptions' object-literal
+    // For every option that is set, add it to the 'options' object-literal
     if (select) options['select'] = this.optObjectOrString(select);
     if (collation) options['collation'] = this.optObjectOrString(collation);
     if (sort) options['sort'] = this.optObjectOrString(sort);

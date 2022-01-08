@@ -28,6 +28,11 @@ BookSchema.index({
   loc: '2dsphere',
 });
 
+/**
+ * Test a collection of documents, and expect it to not be paginated
+ *
+ * @param {object} result
+ * */
 const testUnpaginatedCollection = (result) => {
   expect(result.docs).to.have.length(100);
   expect(result.totalDocs).to.equal(100);
@@ -42,7 +47,9 @@ const testUnpaginatedCollection = (result) => {
 };
 
 /**
- * Test that the result.docs are sorted after their 'price', in a descending order
+ * Test that the result.docs are sorted after their 'price' in descending order
+ *
+ * @param {object} result
  * */
 const testDescendingPrice = (result) => {
   let isSorted = true;
