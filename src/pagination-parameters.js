@@ -4,11 +4,14 @@ class PaginationParametersHelper {
   }
 
   /**
-   * @param {string} option
+   * If the 'option'-Parameter is a string, check if it equals 'true'
+   * If not, it should be a boolean, and can be returned as it is.
+   *
+   * @param {string|boolean} option
    * @return {boolean}
    * */
   booleanOpt(option) {
-    return option === 'true';
+    return typeof option === 'string' ? option === 'true' : option;
   }
 
   /**
@@ -93,20 +96,24 @@ class PaginationParametersHelper {
     if (collation) options['collation'] = this.optObjectOrString(collation);
     if (sort) options['sort'] = this.optObjectOrString(sort);
     if (populate) options['populate'] = this.optObjectOrString(populate);
-    if (projection) options['projection'] = this.optObjectOrString(projection);
-    if (lean) options['lean'] = this.booleanOpt(lean);
-    if (leanWithId) options['leanWithId'] = this.booleanOpt(leanWithId);
+    if (projection !== undefined)
+      options['projection'] = this.optObjectOrString(projection);
+    if (lean !== undefined) options['lean'] = this.booleanOpt(lean);
+    if (leanWithId !== undefined)
+      options['leanWithId'] = this.booleanOpt(leanWithId);
     if (offset) options['offset'] = Number(offset);
     if (page) options['page'] = Number(page);
     if (limit) options['limit'] = Number(limit);
     if (customLabels)
       options['customLabels'] = this.optObjectOrString(customLabels);
-    if (pagination) options['pagination'] = this.booleanOpt(pagination);
-    if (useEstimatedCount)
+    if (pagination !== undefined)
+      options['pagination'] = this.booleanOpt(pagination);
+    if (useEstimatedCount !== undefined)
       options['useEstimatedCount'] = this.booleanOpt(useEstimatedCount);
-    if (useCustomCountFn)
+    if (useCustomCountFn !== undefined)
       options['useCustomCountFn'] = this.booleanOpt(useCustomCountFn);
-    if (forceCountFn) options['forceCountFn'] = this.booleanOpt(forceCountFn);
+    if (forceCountFn !== undefined)
+      options['forceCountFn'] = this.booleanOpt(forceCountFn);
     if (allowDiskUse) options['allowDiskUse'] = this.booleanOpt(allowDiskUse);
     if (read) options['read'] = this.optObjectOrString(read);
     if (mongooseOptions) options['options'] = this.getOptions(mongooseOptions);

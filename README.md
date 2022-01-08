@@ -382,7 +382,7 @@ Model.paginate({}, options, function (err, result) {
 
 ## Development
 
-- Ensure all tests pass before you commit by running `npm run test`
+- Ensure all tests pass before you commit by running `npm run test`. In order to run the tests, you need to have the Mongo Deamon running locally.
 - There are pre-commit hooks that run to ensure the _files you've changed_ are formatted correctly.
 - Optionally you can manually run `npm run lint && npm run prettier` to lint and format every relevant file
 - If using VS Code, install eslint and prettier for easy editor integration.

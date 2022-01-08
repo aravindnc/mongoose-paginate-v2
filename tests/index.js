@@ -4,6 +4,7 @@ let mongoose = require('mongoose');
 let expect = require('chai').expect;
 let assert = require('chai').assert;
 let mongoosePaginate = require('../dist/index');
+let PaginationParameters = require('../dist/pagination-parameters');
 
 let MONGO_URI = 'mongodb://localhost/mongoose_paginate_test';
 
@@ -26,6 +27,38 @@ let BookSchema = new mongoose.Schema({
 BookSchema.index({
   loc: '2dsphere',
 });
+
+const testUnpaginatedCollection = (result) => {
+  expect(result.docs).to.have.length(100);
+  expect(result.totalDocs).to.equal(100);
+  expect(result.limit).to.equal(100);
+  expect(result.page).to.equal(1);
+  expect(result.pagingCounter).to.equal(1);
+  expect(result.hasPrevPage).to.equal(false);
+  expect(result.hasNextPage).to.equal(false);
+  expect(result.prevPage).to.equal(null);
+  expect(result.nextPage).to.equal(null);
+  expect(result.totalPages).to.equal(1);
+};
+
+/**
+ * Test that the result.docs are sorted after their 'price', in a descending order
+ * */
+const testDescendingPrice = (result) => {
+  let isSorted = true;
+
+  // Skip the first index of the collection, but then make sure that
+  // every following document.price is lower than the last one.
+  // If it is not, the sorting is broken, thus failing the test
+  for (let i = 1; i < result.docs.length; i++) {
+    if (result.docs[i].price > result.docs[i - 1].price) {
+      isSorted = false;
+      break;
+    }
+  }
+
+  expect(isSorted).to.be.true;
+};
 
 BookSchema.plugin(mongoosePaginate);
 
@@ -509,16 +542,7 @@ describe('mongoose-paginate', function () {
     };
 
     return Book.paginate(query, options).then((result) => {
-      expect(result.docs).to.have.length(100);
-      expect(result.totalDocs).to.equal(100);
-      expect(result.limit).to.equal(100);
-      expect(result.page).to.equal(1);
-      expect(result.pagingCounter).to.equal(1);
-      expect(result.hasPrevPage).to.equal(false);
-      expect(result.hasNextPage).to.equal(false);
-      expect(result.prevPage).to.equal(null);
-      expect(result.nextPage).to.equal(null);
-      expect(result.totalPages).to.equal(1);
+      testUnpaginatedCollection(result);
     });
   });
 
@@ -592,6 +616,83 @@ describe('mongoose-paginate', function () {
       expect(result.nextPage).to.equal(null);
       expect(result.totalPages).to.equal(1);
     });
+  });
+
+  it('PaginationParameters-helper -> number type options work', () => {
+    const request = {
+      query: {
+        limit: '20',
+        page: '2',
+        // mocks how Frameworks such as Express and Nestjs would parse a JSON object in the query string
+        query: '{"title": {"$in": [/Book/i]}}',
+      },
+    };
+
+    return Book.paginate(...new PaginationParameters(request).get()).then(
+      (result) => {
+        expect(result.docs).to.have.length(20);
+        expect(result.limit).to.equal(20);
+        expect(result.page).to.equal(2);
+        expect(result.hasPrevPage).to.equal(true);
+        expect(result.hasNextPage).to.equal(true);
+        expect(result.prevPage).to.equal(1);
+        expect(result.nextPage).to.equal(3);
+        expect(result.totalPages).to.equal(5);
+      }
+    );
+  });
+
+  it('PaginationParameters-helper -> (JSON) object type options work', () => {
+    const request = {
+      query: {
+        limit: '5',
+        page: '4',
+        // mocks how Frameworks such as Express and Nestjs would read a JSON object as a part of the query string
+        query: '{"price": {"$gt": 100}}',
+        sort: '{"price": "desc"}',
+      },
+    };
+
+    return Book.paginate(...new PaginationParameters(request).get()).then(
+      (result) => {
+        testDescendingPrice(result);
+        expect(result.docs).to.have.length(5);
+        expect(result.limit).to.equal(5);
+        expect(result.page).to.equal(4);
+        expect(result.hasPrevPage).to.equal(true);
+        expect(result.hasNextPage).to.equal(true);
+        expect(result.prevPage).to.equal(3);
+        expect(result.nextPage).to.equal(5);
+      }
+    );
+  });
+
+  it('PaginationParameters-helper -> boolean options work', () => {
+    const request = {
+      query: {
+        pagination: false,
+      },
+    };
+
+    return Book.paginate(...new PaginationParameters(request).get()).then(
+      (result) => {
+        testUnpaginatedCollection(result);
+      }
+    );
+  });
+
+  it('PaginationParameters-helper -> string options work', () => {
+    const request = {
+      query: {
+        sort: '-price',
+      },
+    };
+
+    return Book.paginate(...new PaginationParameters(request).get()).then(
+      (result) => {
+        testDescendingPrice(result);
+      }
+    );
   });
 
   after(function (done) {
