@@ -7,7 +7,7 @@ class PaginationParametersHelper {
    * @param {string} option
    * @return {boolean}
    * */
-  getBooleanOption(option) {
+  booleanOpt(option) {
     return option === 'true';
   }
 
@@ -15,10 +15,22 @@ class PaginationParametersHelper {
    * @param {object|string} option
    * @return {object|string}
    * */
-  getOptionObjectOrString(option) {
+  optObjectOrString(option) {
+    // Since the JSON in the query object will be strings,
+    // we need to be able to detect this, in order to differentiate between JSON-objects and pure strings.
+    // a pure string, e.g. 'field -test', might not be parsed as wished by JSON.parse
+    const openingBrackets = ['{', '['];
+    const closingBrackets = ['}', ']'];
+    const firstCharIsBracket = option[0] && openingBrackets.includes(option[0]);
+    const lastCharIsBracket =
+      option[option.length - 1] &&
+      closingBrackets.includes(option[option.length - 1]);
+    const optionIsObject = firstCharIsBracket && lastCharIsBracket;
+
     try {
-      return JSON.parse(option);
+      return optionIsObject ? JSON.parse(option) : option;
     } catch (err) {
+      // Fallback for parsing errors of objects
       return {};
     }
   }
@@ -27,7 +39,7 @@ class PaginationParametersHelper {
    * @param {string} option
    * @return {number}
    * */
-  getIntegerOption(option) {
+  integerOpt(option) {
     return Number(option);
   }
 
@@ -54,63 +66,52 @@ class PaginationParametersHelper {
   getOptions() {
     if (!this.query) return {};
 
-    const existingOptions = {};
+    const options = {};
 
-    if (this.query.select)
-      existingOptions['select'] = this.getOptionObjectOrString(
-        this.query.select
-      );
-    if (this.query.collation)
-      existingOptions['collation'] = this.getOptionObjectOrString(
-        this.query.collation
-      );
-    if (this.query.sort)
-      existingOptions['sort'] = this.getOptionObjectOrString(this.query.sort);
-    if (this.query.populate)
-      existingOptions['populate'] = this.getOptionObjectOrString(
-        this.query.populate
-      );
-    if (this.query.projection)
-      existingOptions['projection'] = this.getOptionObjectOrString(
-        this.query.projection
-      );
-    if (this.query.lean)
-      existingOptions['lean'] = this.getBooleanOption(this.query.lean);
-    if (this.query.leanWithId)
-      existingOptions['leanWithId'] = this.getBooleanOption(
-        this.query.leanWithId
-      );
-    if (this.query.offset)
-      existingOptions['offset'] = Number(this.query.offset);
-    if (this.query.page) existingOptions['page'] = Number(this.query.page);
-    if (this.query.limit) existingOptions['limit'] = Number(this.query.limit);
-    if (this.query.customLabels)
-      existingOptions['customLabels'] = JSON.parse(this.query.customLabels);
-    if (this.query.pagination)
-      existingOptions['pagination'] = this.getBooleanOption(
-        this.query.pagination
-      );
-    if (this.query.useEstimatedCount)
-      existingOptions['useEstimatedCount'] = this.getBooleanOption(
-        this.query.useEstimatedCount
-      );
-    if (this.query.useCustomCountFn)
-      existingOptions['useCustomCountFn'] = this.getBooleanOption(
-        this.query.useCustomCountFn
-      );
-    if (this.query.forceCountFn)
-      existingOptions['forceCountFn'] = this.getBooleanOption(
-        this.query.forceCountFn
-      );
-    if (this.query.allowDiskUse)
-      existingOptions['allowDiskUse'] = this.getBooleanOption(
-        this.query.allowDiskUse
-      );
-    if (this.query.read) existingOptions['read'] = JSON.parse(this.query.read);
-    if (this.query.options)
-      existingOptions['options'] = JSON.parse(this.query.options);
+    // Instantiate a variables with all the possible options for Model.paginate()
+    const select = this.query.select,
+      collation = this.query.collation,
+      sort = this.query.sort,
+      populate = this.query.populate,
+      projection = this.query.projection,
+      lean = this.query.lean,
+      leanWithId = this.query.leanWithId,
+      offset = this.query.offset,
+      page = this.query.page,
+      limit = this.query.limit,
+      customLabels = this.query.customLabels,
+      pagination = this.query.pagination,
+      useEstimatedCount = this.query.useEstimatedCount,
+      useCustomCountFn = this.query.useCustomCountFn,
+      forceCountFn = this.query.forceCountFn,
+      allowDiskUse = this.query.allowDiskUse,
+      read = this.query.read,
+      mongooseOptions = this.query.options;
 
-    return existingOptions;
+    // If they are set, add them to the 'existingOptions' object-literal
+    if (select) options['select'] = this.optObjectOrString(select);
+    if (collation) options['collation'] = this.optObjectOrString(collation);
+    if (sort) options['sort'] = this.optObjectOrString(sort);
+    if (populate) options['populate'] = this.optObjectOrString(populate);
+    if (projection) options['projection'] = this.optObjectOrString(projection);
+    if (lean) options['lean'] = this.booleanOpt(lean);
+    if (leanWithId) options['leanWithId'] = this.booleanOpt(leanWithId);
+    if (offset) options['offset'] = Number(offset);
+    if (page) options['page'] = Number(page);
+    if (limit) options['limit'] = Number(limit);
+    if (customLabels)
+      options['customLabels'] = this.optObjectOrString(customLabels);
+    if (pagination) options['pagination'] = this.booleanOpt(pagination);
+    if (useEstimatedCount)
+      options['useEstimatedCount'] = this.booleanOpt(useEstimatedCount);
+    if (useCustomCountFn)
+      options['useCustomCountFn'] = this.booleanOpt(useCustomCountFn);
+    if (forceCountFn) options['forceCountFn'] = this.booleanOpt(forceCountFn);
+    if (allowDiskUse) options['allowDiskUse'] = this.booleanOpt(allowDiskUse);
+    if (read) options['read'] = this.optObjectOrString(read);
+    if (mongooseOptions) options['options'] = this.getOptions(mongooseOptions);
+
+    return options;
   }
 
   /**
