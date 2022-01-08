@@ -20,6 +20,7 @@
  *
  * @returns {Promise}
  */
+const PaginationParametersHelper = require('./pagination-parameters');
 
 const defaultOptions = {
   customLabels: {
@@ -289,4 +290,5 @@ module.exports = (schema) => {
   schema.statics.paginate = paginate;
 };
 
+module.exports.PaginationParameters = PaginationParametersHelper;
 module.exports.paginate = paginate;
