@@ -174,6 +174,31 @@ Model.paginate({}, options, function (err, result) {
 });
 ```
 
+### Use helper-class for passing query object into Model.paginate()
+
+For conveniently passing on all request query parameters into paginate(), without having to specify them all in the controller, you can use the PaginationParameters-class. The example below is with express.js code, but can be applied to any request, where the query string has been parsed into an object.
+
+```javascript
+const { PaginationParameters } = require('mongoose-paginate-v2');
+
+// req.query = {
+//   page: 1,
+//   limit: 10,
+//   query: {"color": "blue", "published": true}
+//   projection: {"color": 1}
+// }
+
+req.get('/route', (req, res) => {
+  Model.paginate(...new PaginationParameters(req).get()).then((result) => {
+    // process the paginated result.
+  });
+
+  console.log(new PaginationParameters(req).get()); // [{ color: "blue", published: true }, { page: 1, limit: 10, projection: { color: 1 } }]
+});
+```
+
+**Note**: `req.query.projection` and `req.query.query` have to be valid JSON. The same goes for any option which is passed into Model.paginate() as an array or object.
+
 ### Other Examples
 
 Using `offset` and `limit`:
@@ -212,29 +237,6 @@ Book.paginate(query, options).then(function (result) {
   // ...
 });
 ```
-
-#### Use helper-class for passing query object into Model.paginate()
-
-For conveniently passing on all request query parameters into paginate(), without having to specify them all in the controller, you can use the PaginationParameters-class. The example below is with express.js code, but can be applied to any request, where the query string has been parsed into an object.
-
-```javascript
-const { PaginationParameters } = require('mongoose-paginate-v2');
-
-// req.query = {
-//   page: 1,
-//   limit: 10,
-//   query: {"color": "blue", "published": true}
-//   projection: {"color": 1}
-// }
-
-req.get('/route', (req, res) => {
-  Model.paginate(...new PaginationParameters(req).get()).then({});
-
-  console.log(new PaginationParameters(req).get()); // [{ color: "blue", published: true }, { page: 1, limit: 10, projection: { color: 1 } }]
-});
-```
-
-Please note that `req.query.projection` and `req.query.query` have to be valid JSON. The same goes for any option which is passed into Model.paginate() as an array or object.
 
 #### Zero limit
 

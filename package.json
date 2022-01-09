@@ -1,6 +1,6 @@
 {
   "name": "mongoose-paginate-v2",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "description": "A custom pagination library for Mongoose with customizable labels.",
   "main": "dist/index.js",
   "scripts": {
@@ -42,7 +42,8 @@
     "prevpage",
     "total",
     "paginator",
-    "plugin"
+    "plugin",
+    "helper"
   ],
   "author": "Aravind NC <aravind_n_c@yahoo.co.in> (https://aravindnc.com)",
   "contributors": [

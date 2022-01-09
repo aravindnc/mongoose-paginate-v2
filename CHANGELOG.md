@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.5.0
+
+[2022-01-09]
+
+- Added feature: PaginationParameters helper class
+
 ## v1.4.3
 
 [2022-01-06]
