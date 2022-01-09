@@ -65,8 +65,8 @@ Returns promise
   - `[limit=10]` {Number}
   - `[customLabels]` {Object} - Developers can provide custom labels for manipulating the response data.
   - `[pagination]` {Boolean} - If `pagination` is set to false, it will return all docs without adding limit condition. (Default: True)
-  - `[useEstimatedCount]` - Enable [estimatedDocumentCount](https://docs.mongodb.com/manual/reference/method/db.collection.estimatedDocumentCount/) for larger datasets. Does not count based on given query, so the count will match entire collection size. (Default: False)
-  - `[useCustomCountFn]` - Enable custom function for count datasets. (Default: False)
+  - `[useEstimatedCount]` {Boolean} - Enable [estimatedDocumentCount](https://docs.mongodb.com/manual/reference/method/db.collection.estimatedDocumentCount/) for larger datasets. Does not count based on given query, so the count will match entire collection size. (Default: False)
+  - `[useCustomCountFn]` {Boolean} - Enable custom function for count datasets. (Default: False)
   - `[forceCountFn]` {Boolean} - Set this to true, if you need to support \$geo queries. (Default: False)
   - `[allowDiskUse]` {Boolean} - Set this to true, which allows the MongoDB server to use more than 100 MB for query. This option can let you work around QueryExceededMemoryLimitNoDiskUseAllowed errors from the MongoDB server. (Default: False)
   - `[read]` {Object} - Determines the MongoDB nodes from which to read. Below are the available options.
@@ -212,6 +212,29 @@ Book.paginate(query, options).then(function (result) {
   // ...
 });
 ```
+
+#### Use helper-class for passing query object into Model.paginate()
+
+For conveniently passing on all request query parameters into paginate(), without having to specify them all in the controller, you can use the PaginationParameters-class. The example below is with express.js code, but can be applied to any request, where the query string has been parsed into an object.
+
+```javascript
+const { PaginationParameters } = require('mongoose-paginate-v2');
+
+// req.query = {
+//   page: 1,
+//   limit: 10,
+//   query: {"color": "blue", "published": true}
+//   projection: {"color": 1}
+// }
+
+req.get('/route', (req, res) => {
+  Model.paginate(...new PaginationParameters(req).get()).then({});
+
+  console.log(new PaginationParameters(req).get()); // [{ color: "blue", published: true }, { page: 1, limit: 10, projection: { color: 1 } }]
+});
+```
+
+Please note that `req.query.projection` and `req.query.query` have to be valid JSON. The same goes for any option which is passed into Model.paginate() as an array or object.
 
 #### Zero limit
 
@@ -359,7 +382,7 @@ Model.paginate({}, options, function (err, result) {
 
 ## Development
 
-- Ensure all tests pass before you commit by running `npm run test`
+- Ensure all tests pass before you commit by running `npm run test`. In order to run the tests, you need to have the Mongo Deamon running locally.
 - There are pre-commit hooks that run to ensure the _files you've changed_ are formatted correctly.
 - Optionally you can manually run `npm run lint && npm run prettier` to lint and format every relevant file
 - If using VS Code, install eslint and prettier for easy editor integration.
