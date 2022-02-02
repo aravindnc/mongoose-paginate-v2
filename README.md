@@ -45,6 +45,31 @@ const myModel = mongoose.model('SampleModel', mySchema);
 myModel.paginate().then({}); // Usage
 ```
 
+### Typescript
+
+Prior to version `1.5.0`, types need to be installed from [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/mongoose-paginate-v2).
+
+To declare a `PaginateModel` in your Typescript files:
+
+```ts
+import paginate from 'mongoose-paginate-v2';
+
+// declare your schema
+export const institutionSchema = new Schema({ name: String });
+
+// paginate with this plugin
+institutionSchema.plugin(paginate);
+
+// declare a mongoose document based on a Typescript interface representing your schema
+interface InstitutionDocument extends Document, InstitutionData {}
+
+// create the paginated model
+const model = mongoose.model<
+  InstitutionDocument,
+  PaginateModel<InstitutionDocument>
+>('Institutions', institutionSchema, 'institutions');
+```
+
 ### Model.paginate([query], [options], [callback])
 
 Returns promise
