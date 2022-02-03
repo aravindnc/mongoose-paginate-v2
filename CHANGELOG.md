@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.6.0
+
+[2022-02-03]
+
+- Added Typescript version.
+
 ## v1.5.0
 
 [2022-01-09]
