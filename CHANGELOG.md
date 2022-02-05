@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.6.1
+
+[2022-02-05]
+
+- Fix: update paginate options typings #154, #156
+
 ## v1.6.0
 
 [2022-02-03]
