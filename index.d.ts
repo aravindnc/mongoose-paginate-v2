@@ -89,7 +89,7 @@ import mongoose = require('mongoose');
 declare function _(schema: mongoose.Schema): void;
 export = _;
 declare namespace _ {
-  function paginate(schema: mongoose.Schema): void;
+  const paginate: { options: mongoose.PaginateOptions };
   class PaginationParameters<T, O extends mongoose.PaginateOptions> {
     constructor(request: { query?: Record<string, any> });
     getOptions: () => O;
