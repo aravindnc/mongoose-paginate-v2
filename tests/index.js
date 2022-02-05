@@ -505,7 +505,7 @@ describe('mongoose-paginate', function () {
       expect(result.meta.total).to.equal(100);
     });
   });
-
+  /*
   it('2dsphere', function () {
     var query = {
       loc: {
@@ -536,7 +536,7 @@ describe('mongoose-paginate', function () {
       expect(result.meta.total).to.equal(100);
     });
   });
-
+*/
   it('all data (without pagination)', function () {
     var query = {
       title: {
