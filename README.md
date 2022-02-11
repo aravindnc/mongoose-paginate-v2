@@ -384,9 +384,11 @@ Below are some references to understand more about preferences,
 - https://docs.mongodb.com/manual/core/read-preference/
 - http://mongodb.github.io/node-mongodb-native/driver-articles/anintroductionto1_1and2_2.html#read-preferences
 
-## Note
+## Known Issues
 
-There are few operators that this plugin does not support natively, below are the list and suggested replacements,
+### For Mongoose < 6.0.0
+
+There are few operators that this plugin does not support natively, below are the list and suggested replacements.
 
 - $where: $expr
 - $near: $geoWithin with \$center
@@ -406,6 +408,10 @@ Model.paginate({}, options, function (err, result) {
   // Result
 });
 ```
+
+### For Mongoose > 6.0.0
+
+$geoNear, $near, and $nearSphere will not work. This will be updated in the future plugin versions.
 
 ## Development
 

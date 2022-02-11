@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.6.2
+
+[2022-02-11]
+
+- Removed 2D test cases to support Mongoose 6.
+
 ## v1.6.1
 
 [2022-02-05]
