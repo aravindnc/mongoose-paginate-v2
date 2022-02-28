@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.6.3
+
+[2022-02-28]
+
+- Added support for Mongoose 6
+
 ## v1.6.2
 
 [2022-02-11]

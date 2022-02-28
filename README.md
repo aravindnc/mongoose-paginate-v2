@@ -411,7 +411,7 @@ Model.paginate({}, options, function (err, result) {
 
 ### For Mongoose > 6.0.0
 
-$geoNear, $near, and $nearSphere will not work. This will be updated in the future plugin versions.
+$geoNear, $near, and $nearSphere may not work (Untested). This will be updated in the future plugin versions.
 
 ## Development
 
@@ -427,5 +427,3 @@ $geoNear, $near, and $nearSphere will not work. This will be updated in the futu
 ## License
 
 [MIT](LICENSE)
-
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Faravindnc%2Fmongoose-paginate-v2.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Faravindnc%2Fmongoose-paginate-v2?ref=badge_large)
