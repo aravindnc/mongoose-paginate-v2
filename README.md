@@ -52,21 +52,22 @@ Prior to version `1.5.0`, types need to be installed from [DefinitelyTyped](http
 To declare a `PaginateModel` in your Typescript files:
 
 ```ts
+import mongoose from 'mongoose'
 import paginate from 'mongoose-paginate-v2';
 
 // declare your schema
-export const institutionSchema = new Schema({ name: String });
+export const institutionSchema = new mongoose.Schema({ name: String });
 
 // paginate with this plugin
 institutionSchema.plugin(paginate);
 
 // declare a mongoose document based on a Typescript interface representing your schema
-interface InstitutionDocument extends Document, InstitutionData {}
+interface InstitutionDocument extends mongoose.Document, InstitutionData {}
 
 // create the paginated model
 const model = mongoose.model<
   InstitutionDocument,
-  PaginateModel<InstitutionDocument>
+  mongoose.PaginateModel<InstitutionDocument>
 >('Institutions', institutionSchema, 'institutions');
 ```
 
