@@ -361,24 +361,6 @@ Model.paginate({}, options, function (err, result) {
 });
 ```
 
-#### AllowDiskUse for large datasets
-
-Sets the allowDiskUse option, which allows the MongoDB server to use more than 100 MB for query. This option can let you work around `QueryExceededMemoryLimitNoDiskUseAllowed` errors from the MongoDB server.
-
-**Note that this option requires MongoDB server >= 4.4. Setting this option is a no-op for MongoDB 4.2 and earlier.**
-
-```js
-const options = {
-  limit: 10,
-  page: 1,
-  allowDiskUse: true,
-};
-
-Model.paginate({}, options, function (err, result) {
-  // Result
-});
-```
-
 ### Pagination for sub documents
 
 If you want to paginate your sub-documents, here is the method you can use.
@@ -399,6 +381,24 @@ var option = {
 
 // Only one document (which object key with name John) will be return
 const result = await Book.paginateSubDocs(query, option);
+```
+
+#### AllowDiskUse for large datasets
+
+Sets the allowDiskUse option, which allows the MongoDB server to use more than 100 MB for query. This option can let you work around `QueryExceededMemoryLimitNoDiskUseAllowed` errors from the MongoDB server.
+
+**Note that this option requires MongoDB server >= 4.4. Setting this option is a no-op for MongoDB 4.2 and earlier.**
+
+```js
+const options = {
+  limit: 10,
+  page: 1,
+  allowDiskUse: true,
+};
+
+Model.paginate({}, options, function (err, result) {
+  // Result
+});
 ```
 
 Below are some references to understand more about preferences,
