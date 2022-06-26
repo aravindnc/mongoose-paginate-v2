@@ -52,7 +52,7 @@ Prior to version `1.5.0`, types need to be installed from [DefinitelyTyped](http
 To declare a `PaginateModel` in your Typescript files:
 
 ```ts
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 import paginate from 'mongoose-paginate-v2';
 
 // declare your schema
@@ -377,6 +377,28 @@ const options = {
 Model.paginate({}, options, function (err, result) {
   // Result
 });
+```
+
+### Pagination for sub documents
+
+If you want to paginate your sub-documents, here is the method you can use.
+
+```js
+var query = { name: 'John' }
+var option = {
+  select: 'name follower'
+  pagingOptions: {
+    // your populate option
+    populate: {
+      path: 'follower',
+    },
+    page: 2,
+    limit: 10,
+  },
+};
+
+// Only one document (which object key with name John) will be return
+const result = await Book.paginateSubDocs(query, option);
 ```
 
 Below are some references to understand more about preferences,
