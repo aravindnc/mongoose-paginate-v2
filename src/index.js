@@ -300,15 +300,7 @@ function paginateSubDocs(query, options, callback) {
    * @param {Object} option
    */
   function getSubDocsPopulate(option) {
-    /**
-     * options properties for sub-documents pagination
-     *
-     * @param {String} populate: populate option for sub documents
-     * @param {Number} page
-     * @param {Number} limit
-     *
-     * @returns {String} countLabel
-     */
+    // options properties for sub-documents pagination
     let { populate, page = 1, limit = 10 } = option;
 
     if (!populate) {
