@@ -8,10 +8,18 @@ let PaginationParameters = require('../dist/pagination-parameters');
 
 let MONGO_URI = 'mongodb://localhost/mongoose_paginate_test';
 
+let UserSchema = new mongoose.Schema({
+  name: String,
+  age: Number,
+  gender: Number,
+});
+
 let AuthorSchema = new mongoose.Schema({
   name: String,
 });
+
 let Author = mongoose.model('Author', AuthorSchema);
+let User = mongoose.model('User', UserSchema);
 
 let BookSchema = new mongoose.Schema({
   title: String,
@@ -21,6 +29,12 @@ let BookSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'Author',
   },
+  used: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+    },
+  ],
   loc: Object,
 });
 
@@ -87,10 +101,22 @@ describe('mongoose-paginate', function () {
     mongoose.connection.db.dropDatabase(done);
   });
 
-  before(function () {
+  before(async function () {
     let book,
       books = [];
     let date = new Date();
+
+    // create users
+    let users = [];
+    for (let i = 0; i < 10; ++i) {
+      const user = new User({
+        name: randomString(),
+        gender: 1,
+        age: i,
+      });
+      const newUser = await User.create(user);
+      users.push(newUser);
+    }
 
     return Author.create({
       name: 'Arthur Conan Doyle',
@@ -102,6 +128,7 @@ describe('mongoose-paginate', function () {
           title: 'Book #' + i,
           date: new Date(date.getTime() + i),
           author: author._id,
+          used: users,
           loc: {
             type: 'Point',
             coordinates: [-10.97, 20.77],
@@ -505,6 +532,33 @@ describe('mongoose-paginate', function () {
       expect(result.meta.total).to.equal(100);
     });
   });
+
+  it('Sub documents pagination', () => {
+    var query = { title: 'Book #1' };
+    var option = {
+      pagingOptions: {
+        populate: {
+          path: 'used',
+        },
+        page: 2,
+        limit: 3,
+      },
+    };
+
+    return Book.paginateSubDocs(query, option).then((result) => {
+      expect(result.used.docs).to.have.length(3);
+      expect(result.used.totalPages).to.equal(4);
+      expect(result.used.page).to.equal(2);
+      expect(result.used.limit).to.equal(3);
+      expect(result.used.hasPrevPage).to.equal(true);
+      expect(result.used.hasNextPage).to.equal(true);
+      expect(result.used.prevPage).to.equal(1);
+      expect(result.used.nextPage).to.equal(3);
+      expect(result.used.pagingCounter).to.equal(4);
+      expect(result.used.docs[0].age).to.equal(3);
+    });
+  });
+
   /*
   it('2dsphere', function () {
     var query = {
@@ -710,3 +764,18 @@ describe('mongoose-paginate', function () {
     mongoose.disconnect(done);
   });
 });
+
+function randomString(strLength, charSet) {
+  var result = [];
+
+  strLength = strLength || 5;
+  charSet =
+    charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+  while (strLength--) {
+    // (note, fixed typo)
+    result.push(charSet.charAt(Math.floor(Math.random() * charSet.length)));
+  }
+
+  return result.join('');
+}

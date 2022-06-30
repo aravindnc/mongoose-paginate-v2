@@ -23,12 +23,12 @@ declare module 'mongoose' {
     collation?: import('mongodb').CollationOptions | undefined;
     sort?: object | string | undefined;
     populate?:
-      | PopulateOptions[]
-      | string[]
-      | PopulateOptions
-      | string
-      | PopulateOptions
-      | undefined;
+    | PopulateOptions[]
+    | string[]
+    | PopulateOptions
+    | string
+    | PopulateOptions
+    | undefined;
     projection?: any;
     lean?: boolean | undefined;
     leanWithId?: boolean | undefined;
@@ -44,6 +44,32 @@ declare module 'mongoose' {
     allowDiskUse?: boolean | undefined;
     read?: ReadOptions | undefined;
     options?: QueryOptions | undefined;
+  }
+
+  interface SubPaginateOptions {
+    select?: object | string | undefined;
+    populate?:
+    | PopulateOptions[]
+    | string[]
+    | PopulateOptions
+    | string
+    | PopulateOptions
+    | undefined;
+    pagination?: boolean | undefined;
+    read?: ReadOptions | undefined;
+    pagingOptions: SubDocumentPagingOptions | undefined;
+  }
+
+  interface SubDocumentPagingOptions {
+    populate?:
+    | PopulateOptions[]
+    | string[]
+    | PopulateOptions
+    | string
+    | PopulateOptions
+    | undefined;
+    page?: number | undefined;
+    limit?: number | undefined;
   }
 
   interface PaginateResult<T> {
@@ -69,8 +95,8 @@ declare module 'mongoose' {
     O extends PaginateOptions = {}
   > = O['lean'] extends true
     ? O['leanWithId'] extends true
-      ? LeanDocument<T & { id: string }>
-      : LeanDocument<T>
+    ? LeanDocument<T & { id: string }>
+    : LeanDocument<T>
     : HydratedDocument<T, TMethods, TVirtuals>;
 
   interface PaginateModel<T, TQueryHelpers = {}, TMethods = {}>
@@ -91,6 +117,7 @@ declare function _(schema: mongoose.Schema): void;
 export = _;
 declare namespace _ {
   const paginate: { options: mongoose.PaginateOptions };
+  const paginateSubDocs: { options: mongoose.PaginateOptions };
   class PaginationParameters<T, O extends mongoose.PaginateOptions> {
     constructor(request: { query?: Record<string, any> });
     getOptions: () => O;
