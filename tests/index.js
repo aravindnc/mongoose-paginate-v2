@@ -29,7 +29,7 @@ let BookSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'Author',
   },
-  used: [
+  user: [
     {
       type: mongoose.Schema.ObjectId,
       ref: 'User',
@@ -128,7 +128,7 @@ describe('mongoose-paginate', function () {
           title: 'Book #' + i,
           date: new Date(date.getTime() + i),
           author: author._id,
-          used: users,
+          user: users,
           loc: {
             type: 'Point',
             coordinates: [-10.97, 20.77],
@@ -538,7 +538,7 @@ describe('mongoose-paginate', function () {
     var option = {
       pagingOptions: {
         populate: {
-          path: 'used',
+          path: 'user',
         },
         page: 2,
         limit: 3,
@@ -546,16 +546,16 @@ describe('mongoose-paginate', function () {
     };
 
     return Book.paginateSubDocs(query, option).then((result) => {
-      expect(result.used.docs).to.have.length(3);
-      expect(result.used.totalPages).to.equal(4);
-      expect(result.used.page).to.equal(2);
-      expect(result.used.limit).to.equal(3);
-      expect(result.used.hasPrevPage).to.equal(true);
-      expect(result.used.hasNextPage).to.equal(true);
-      expect(result.used.prevPage).to.equal(1);
-      expect(result.used.nextPage).to.equal(3);
-      expect(result.used.pagingCounter).to.equal(4);
-      expect(result.used.docs[0].age).to.equal(3);
+      expect(result.user.docs).to.have.length(3);
+      expect(result.user.totalPages).to.equal(4);
+      expect(result.user.page).to.equal(2);
+      expect(result.user.limit).to.equal(3);
+      expect(result.user.hasPrevPage).to.equal(true);
+      expect(result.user.hasNextPage).to.equal(true);
+      expect(result.user.prevPage).to.equal(1);
+      expect(result.user.nextPage).to.equal(3);
+      expect(result.user.pagingCounter).to.equal(4);
+      expect(result.user.docs[0].age).to.equal(3);
     });
   });
 
