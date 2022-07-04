@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.7.0
+
+[2022-07-04]
+
+- Added support for sub-document pagination.
+
+[2022-02-28]
+
+- Added support for Mongoose 6
+
 ## v1.6.3
 
 [2022-02-28]
