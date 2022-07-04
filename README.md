@@ -361,14 +361,14 @@ Model.paginate({}, options, function (err, result) {
 });
 ```
 
-### Pagination for sub documents
+### Pagination for Sub-Documents
 
 If you want to paginate your sub-documents, here is the method you can use.
 
 ```js
-var query = { name: 'John' }
+var query = { name: 'John' };
 var option = {
-  select: 'name follower'
+  select: 'name follower',
   pagingOptions: {
     // your populate option
     populate: {
