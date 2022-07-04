@@ -111,10 +111,6 @@ function paginateSubDocs(query, options, callback) {
     });
   }
 
-  // options = Object.assign(options, {
-  //     customLabels: defaultOptions.customLabels,
-  // });
-
   // options properties for main document query
   const {
     populate,
@@ -122,9 +118,10 @@ function paginateSubDocs(query, options, callback) {
     select = '',
     pagination = true,
     pagingOptions,
+    projection,
   } = options;
 
-  const mQuery = this.findOne(query, options.projection);
+  const mQuery = this.findOne(query, projection);
 
   if (read && read.pref) {
     /**
