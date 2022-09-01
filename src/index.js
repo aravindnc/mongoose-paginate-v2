@@ -49,6 +49,7 @@ const defaultOptions = {
   useCustomCountFn: false,
   forceCountFn: false,
   allowDiskUse: false,
+  customFind: 'find',
 };
 
 function paginate(query, options, callback) {
@@ -73,6 +74,7 @@ function paginate(query, options, callback) {
     useCustomCountFn,
     forceCountFn,
     allowDiskUse,
+    customFind,
   } = options;
 
   const customLabels = {
@@ -151,7 +153,7 @@ function paginate(query, options, callback) {
   }
 
   if (limit) {
-    const mQuery = this.find(query, projection, findOptions);
+    const mQuery = this[customFind](query, projection, findOptions);
 
     if (populate) {
       mQuery.populate(populate);
