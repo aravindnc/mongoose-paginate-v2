@@ -99,6 +99,7 @@ Returns promise
     - `[pref]`: One of the listed preference options or aliases.
     - `[tags]`: Optional tags for this query. (Must be used with `[pref]`)
   - `[options]` {Object} - Options passed to Mongoose's `find()` function. [Documentation](https://mongoosejs.com/docs/api.html#query_Query-setOptions)
+  - `[customFind]` {String} - Method name for the find method which called from Model object. This options can be used to change default behaviour for pagination in case of different use cases (like [mongoose-soft-delete](https://github.com/dsanel/mongoose-delete#method-overridden)). (Default `'find'`)
 - `[callback(err, result)]` - If specified, the callback is called once pagination results are retrieved or when an error has occurred
 
 **Return value**
