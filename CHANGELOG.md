@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.7.1
+
+- Added support for custom find method.
+
 ## v1.7.0
 
 [2022-07-04]
