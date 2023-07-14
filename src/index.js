@@ -128,26 +128,29 @@ function paginate(query, options, callback) {
 
   let countPromise;
 
-  if (forceCountFn === true) {
-    // Deprecated since starting from MongoDB Node.JS driver v3.1
+  // Only run count when pagination is enabled
+  if (pagination) {
+    if (forceCountFn === true) {
+      // Deprecated since starting from MongoDB Node.JS driver v3.1
 
-    // Hack for mongo < v3.4
-    if (Object.keys(collation).length > 0) {
-      countPromise = this.count(query).collation(collation).exec();
-    } else {
-      countPromise = this.count(query).exec();
-    }
-  } else {
-    if (useEstimatedCount === true) {
-      countPromise = this.estimatedDocumentCount().exec();
-    } else if (typeof useCustomCountFn === 'function') {
-      countPromise = useCustomCountFn();
-    } else {
       // Hack for mongo < v3.4
       if (Object.keys(collation).length > 0) {
-        countPromise = this.countDocuments(query).collation(collation).exec();
+        countPromise = this.count(query).collation(collation).exec();
       } else {
-        countPromise = this.countDocuments(query).exec();
+        countPromise = this.count(query).exec();
+      }
+    } else {
+      if (useEstimatedCount === true) {
+        countPromise = this.estimatedDocumentCount().exec();
+      } else if (typeof useCustomCountFn === 'function') {
+        countPromise = useCustomCountFn();
+      } else {
+        // Hack for mongo < v3.4
+        if (Object.keys(collation).length > 0) {
+          countPromise = this.countDocuments(query).collation(collation).exec();
+        } else {
+          countPromise = this.countDocuments(query).exec();
+        }
       }
     }
   }
@@ -206,7 +209,13 @@ function paginate(query, options, callback) {
 
   return Promise.all([countPromise, docsPromise])
     .then((values) => {
-      const [count, docs] = values;
+      let count = values[0];
+      const docs = values[1];
+
+      if (pagination !== true) {
+        count = docs.length;
+      }
+
       const meta = {
         [labelTotal]: count,
       };
