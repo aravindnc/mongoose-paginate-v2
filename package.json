@@ -1,16 +1,18 @@
 {
   "name": "mongoose-paginate-v2",
-  "version": "1.7.2",
+  "version": "1.7.22",
   "description": "A custom pagination library for Mongoose with customizable labels.",
   "main": "dist/index.js",
   "types": "index.d.ts",
   "scripts": {
+    "scripts": {
     "pretest": "npm run build",
-    "test": "./node_modules/.bin/mocha tests/*.js -R spec --ui bdd --timeout 9999999",
-    "build": "babel src -d dist",
-    "lint": "./node_modules/.bin/eslint \"tests\" \"src\" \".eslintrc.js\" --fix",
-    "prettier": "./node_modules/.bin/prettier --write \"{src,tests}/**/*.js\" \"*.md\"",
-    "prepublish": "npm run test"
+    "test": "mocha tests/*.js -R spec --ui bdd --timeout 9999999",
+	  "build": "babel src -d dist",
+	  "lint": "eslint \"tests\" \"src\" \".eslintrc.js\" --fix",
+	  "prettier": "prettier --write \"{src,tests}/**/*.js\" \"*.md\"",
+	  "prepublish": "npm run test"
+    },
   },
   "husky": {
     "hooks": {
