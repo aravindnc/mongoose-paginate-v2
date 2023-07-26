@@ -98,7 +98,7 @@ class PaginationParametersHelper {
       options['leanWithId'] = this.booleanOpt(leanWithId);
     if (offset) options['offset'] = Number(offset);
     if (page) options['page'] = Number(page);
-    if (limit) options['limit'] = Number(limit);
+    if (limit || limit == 0) options['limit'] = Number(limit);
     if (customLabels)
       options['customLabels'] = this.optObjectOrString(customLabels);
     if (pagination !== undefined)
