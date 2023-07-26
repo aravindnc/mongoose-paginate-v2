@@ -27,7 +27,7 @@ jobs:
         run: npm run build # Change this command if you need to build your package before deployment
 
       - name: Login to npm
-        run: npm login --registry=https://registry.npmjs.org/ --scope=@your-scope --always-auth
+        run: npm login --registry=https://registry.npmjs.org/ --scope=@mongoose-paginate-v2 --always-auth
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
           
