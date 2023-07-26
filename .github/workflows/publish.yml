@@ -24,7 +24,7 @@ jobs:
         run: npm ci
 
       - name: Build package
-        run: npm run test # Change this command if you need to build your package before deployment
+        run: npm run build # Change this command if you need to build your package before deployment
 
       - name: Login to npm
         run: npm login --registry=https://registry.npmjs.org/ --scope=@your-scope --always-auth
