@@ -110,6 +110,30 @@ declare module 'mongoose' {
       ) => void
     ): Promise<PaginateResult<PaginateDocument<T, TMethods, O>>>;
   }
+
+  interface PaginateModel<T, TQueryHelpers = {}, TMethods = {}>
+    extends Model<T, TQueryHelpers, TMethods> {
+    paginate<UserType = T, O extends PaginateOptions = PaginateOptions >(
+      query?: FilterQuery<T>,
+      options?: O,
+      callback?: (
+        err: any,
+        result: PaginateResult<PaginateDocument<UserType, TMethods, O>>
+      ) => void
+    ): Promise<PaginateResult<PaginateDocument<UserType, TMethods, O>>>;
+  }
+
+  interface PaginateModel<T, TQueryHelpers = {}, TMethods = {}>
+    extends Model<T, TQueryHelpers, TMethods> {
+    paginate<UserType = T>(
+      query?: FilterQuery<T>,
+      options?: PaginateOptions,
+      callback?: (
+        err: any,
+        result: PaginateResult<PaginateDocument<UserType, TMethods, PaginateOptions>>
+      ) => void
+    ): Promise<PaginateResult<PaginateDocument<UserType, TMethods, PaginateOptions>>>;
+  }
 }
 
 import mongoose = require('mongoose');
