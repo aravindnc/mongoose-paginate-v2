@@ -1,9 +1,15 @@
 # Changelog
 
+## v1.7.4
+
+- Set dynamic type for docs items
+
 ## v1.7.3
+
 - Fix - set limit when limit is 0
 
 ## v1.7.2
+
 - Fix #194
 
 ## v1.7.1
