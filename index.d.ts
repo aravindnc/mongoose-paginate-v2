@@ -95,8 +95,8 @@ declare module 'mongoose' {
     O extends PaginateOptions = {}
   > = O['lean'] extends true
     ? O['leanWithId'] extends true
-    ? LeanDocument<T & { id: string }>
-    : LeanDocument<T>
+      ? T & { id: string }
+      : T
     : HydratedDocument<T, TMethods, TVirtuals>;
 
   interface PaginateModel<T, TQueryHelpers = {}, TMethods = {}>

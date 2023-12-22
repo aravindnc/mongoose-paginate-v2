@@ -42,8 +42,8 @@ function paginateSubDocs(query, options, callback) {
     return populate;
   }
 
-  function populateResult(result, populate, callback) {
-    return result.populate(populate, callback);
+  function populateResult(result, populate) {
+    return result.populate(populate);
   }
 
   /**
@@ -160,12 +160,7 @@ function paginateSubDocs(query, options, callback) {
           }
         }
 
-        populateResult(result, newPopulate, (err, paginatedResult) => {
-          if (err) {
-            callback(err, null);
-            reject(err);
-            return;
-          }
+        populateResult(result, newPopulate).then((paginatedResult) => {
           // convert paginatedResult to pagination docs
           if (pagination && pagingOptions) {
             if (Array.isArray(pagingOptions)) {
@@ -184,6 +179,7 @@ function paginateSubDocs(query, options, callback) {
       .catch((err) => {
         console.error(err.message);
         callback && callback(err, null);
+        reject(err);
       });
   });
 }
