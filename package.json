@@ -7,10 +7,10 @@
   "scripts": {
     "pretest": "npm run build",
     "test": "mocha tests/*.js -R spec --ui bdd --timeout 9999999",
-    "build": "babel src -d dist", 
+    "prepare": "babel src -d dist",
     "lint": "eslint \"tests\" \"src\" \".eslintrc.js\" --fix",
     "prettier": "prettier --write \"{src,tests}/**/*.js\" \"*.md\"",
-    "prepublish": "npm run test"
+    "prepublishOnly": "npm run test"
   },
   "husky": {
     "hooks": {
@@ -84,7 +84,7 @@
     "husky": "^4.3.8",
     "lint-staged": "^10.5.4",
     "mocha": "^8.4.0",
-    "mongoose": "^5.13.2",
+    "mongoose": "^8.0.0",
     "prettier": "^2.3.2",
     "typescript": "^4.5.5"
   },

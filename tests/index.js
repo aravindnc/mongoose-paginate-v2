@@ -86,19 +86,12 @@ BookSchema.plugin(mongoosePaginate);
 let Book = mongoose.model('Book', BookSchema);
 
 describe('mongoose-paginate', function () {
-  before(function (done) {
-    mongoose.connect(
-      MONGO_URI,
-      {
-        useUnifiedTopology: true,
-        useNewUrlParser: true,
-      },
-      done
-    );
+  before(async function () {
+    await mongoose.connect(MONGO_URI);
   });
 
-  before(function (done) {
-    mongoose.connection.db.dropDatabase(done);
+  before(async function () {
+    await mongoose.connection.db.dropDatabase();
   });
 
   before(async function () {
@@ -148,12 +141,9 @@ describe('mongoose-paginate', function () {
     expect(promise.then).to.be.an.instanceof(Function);
   });
 
-  it('callback test', function (done) {
-    Book.paginate({}, {}, function (err, result) {
-      expect(err).to.be.null;
-      expect(result).to.be.an.instanceOf(Object);
-      done();
-    });
+  it('callback test', async function () {
+    const result = await Book.paginate({}, {});
+    expect(result).to.be.an.instanceOf(Object);
   });
 
   it('with page and limit', function () {
@@ -533,7 +523,7 @@ describe('mongoose-paginate', function () {
     });
   });
 
-  it('Sub documents pagination', () => {
+  it('Sub documents pagination', async () => {
     var query = { title: 'Book #1' };
     var option = {
       pagingOptions: {
@@ -545,18 +535,17 @@ describe('mongoose-paginate', function () {
       },
     };
 
-    return Book.paginateSubDocs(query, option).then((result) => {
-      expect(result.user.docs).to.have.length(3);
-      expect(result.user.totalPages).to.equal(4);
-      expect(result.user.page).to.equal(2);
-      expect(result.user.limit).to.equal(3);
-      expect(result.user.hasPrevPage).to.equal(true);
-      expect(result.user.hasNextPage).to.equal(true);
-      expect(result.user.prevPage).to.equal(1);
-      expect(result.user.nextPage).to.equal(3);
-      expect(result.user.pagingCounter).to.equal(4);
-      expect(result.user.docs[0].age).to.equal(3);
-    });
+    const result = await Book.paginateSubDocs(query, option);
+    expect(result.user.docs).to.have.length(3);
+    expect(result.user.totalPages).to.equal(4);
+    expect(result.user.page).to.equal(2);
+    expect(result.user.limit).to.equal(3);
+    expect(result.user.hasPrevPage).to.equal(true);
+    expect(result.user.hasNextPage).to.equal(true);
+    expect(result.user.prevPage).to.equal(1);
+    expect(result.user.nextPage).to.equal(3);
+    expect(result.user.pagingCounter).to.equal(4);
+    expect(result.user.docs[0].age).to.equal(3);
   });
 
   /*
@@ -607,49 +596,40 @@ describe('mongoose-paginate', function () {
     });
   });
 
-  it('estimated count works', function (done) {
-    Book.paginate({}, { useEstimatedCount: true }, function (err, result) {
-      expect(err).to.be.null;
-      expect(result).to.be.an.instanceOf(Object);
-      assert.isNumber(result.totalDocs, 'totalDocs is a number');
-      done();
-    });
+  it('estimated count works', async function () {
+    const result = await Book.paginate({}, { useEstimatedCount: true });
+    expect(result).to.be.an.instanceOf(Object);
+    assert.isNumber(result.totalDocs, 'totalDocs is a number');
   });
 
-  it('count Custom Fn works', function (done) {
-    Book.paginate(
+  it('count Custom Fn works', async function () {
+    const result = await Book.paginate(
       {},
       {
         useCustomCountFn: function () {
           return 100;
         },
-      },
-      function (err, result) {
-        expect(err).to.be.null;
-        expect(result).to.be.an.instanceOf(Object);
-        assert.isNumber(result.totalDocs, 'totalDocs is a number');
-        expect(result.totalDocs).to.equal(100);
-        done();
       }
     );
+
+    expect(result).to.be.an.instanceOf(Object);
+    assert.isNumber(result.totalDocs, 'totalDocs is a number');
+    expect(result.totalDocs).to.equal(100);
   });
 
-  it('count Custom Fn with Promise return works', function (done) {
-    Book.paginate(
+  it('count Custom Fn with Promise return works', async function () {
+    const result = await Book.paginate(
       {},
       {
         useCustomCountFn: function () {
           return Promise.resolve(100);
         },
-      },
-      function (err, result) {
-        expect(err).to.be.null;
-        expect(result).to.be.an.instanceOf(Object);
-        assert.isNumber(result.totalDocs, 'totalDocs is a number');
-        expect(result.totalDocs).to.equal(100);
-        done();
       }
     );
+
+    expect(result).to.be.an.instanceOf(Object);
+    assert.isNumber(result.totalDocs, 'totalDocs is a number');
+    expect(result.totalDocs).to.equal(100);
   });
 
   it('pagination=false, limit/page=undefined -> return all docs', function () {
@@ -756,12 +736,12 @@ describe('mongoose-paginate', function () {
     );
   });
 
-  after(function (done) {
-    mongoose.connection.db.dropDatabase(done);
+  after(async function () {
+    await mongoose.connection.db.dropDatabase();
   });
 
-  after(function (done) {
-    mongoose.disconnect(done);
+  after(async function () {
+    await mongoose.disconnect();
   });
 });
 
