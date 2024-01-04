@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.8.0
+
+- Support for Mongoose v8
+
 ## v1.7.4
 
 - Set dynamic type for docs items
