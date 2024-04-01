@@ -1,3 +1,7 @@
+const { paginate } = require('./paginate');
+const { defaultOptions } = require('./default-options');
+const { getLabels } = require('./utils');
+
 /**
  * Pagination process for sub-documents
  * internally, it would call `query.findOne`, return only one document
@@ -7,6 +11,26 @@
  * @param {Function} callback
  */
 function paginateSubDocs(query, options, callback) {
+  const customLabels = {
+    ...defaultOptions.customLabels,
+    ...paginate.options.customLabels,
+    ...options.customLabels,
+  };
+
+  const {
+    labelDocs,
+    labelLimit,
+    labelNextPage,
+    labelPage,
+    labelPagingCounter,
+    labelPrevPage,
+    labelTotal,
+    labelTotalPages,
+    labelHasPrevPage,
+    labelHasNextPage,
+    labelMeta,
+  } = getLabels(customLabels);
+
   /**
    * Populate sub documents with pagination fields
    *
@@ -69,44 +93,57 @@ function paginateSubDocs(query, options, callback) {
 
     // set default meta
     const meta = {
-      docs: paginatedDocs,
-      totalDocs: count || 1,
-      limit: limit,
-      page: page,
-      prevPage: null,
-      nextPage: null,
-      hasPrevPage: false,
-      hasNextPage: false,
+      [labelTotal]: count || 1,
+      [labelLimit]: limit,
+      [labelPage]: page,
+      [labelPrevPage]: null,
+      [labelNextPage]: null,
+      [labelHasPrevPage]: false,
+      [labelHasNextPage]: false,
     };
 
     const totalPages = limit > 0 ? Math.ceil(count / limit) || 1 : null;
-    meta.totalPages = totalPages;
-    meta.pagingCounter = (page - 1) * limit + 1;
+    meta[labelTotalPages] = totalPages;
+    meta[labelPagingCounter] = (page - 1) * limit + 1;
 
     // Set prev page
     if (page > 1) {
-      meta.hasPrevPage = true;
-      meta.prevPage = page - 1;
+      meta[labelHasPrevPage] = true;
+      meta[labelPrevPage] = page - 1;
     } else if (page == 1 && offset !== 0) {
-      meta.hasPrevPage = true;
-      meta.prevPage = 1;
+      meta[labelHasPrevPage] = true;
+      meta[labelPrevPage] = 1;
     }
 
     // Set next page
     if (page < totalPages) {
-      meta.hasNextPage = true;
-      meta.nextPage = page + 1;
+      meta[labelHasNextPage] = true;
+      meta[labelNextPage] = page + 1;
     }
 
     if (limit == 0) {
-      meta.limit = 0;
-      meta.totalPages = 1;
-      meta.page = 1;
-      meta.pagingCounter = 1;
+      meta[labelLimit] = 0;
+      meta[labelTotalPages] = 1;
+      meta[labelPage] = 1;
+      meta[labelPagingCounter] = 1;
+    }
+
+    let resultValue = {};
+
+    if (labelMeta) {
+      resultValue = {
+        [labelDocs]: paginatedDocs,
+        [labelMeta]: meta,
+      };
+    } else {
+      resultValue = {
+        [labelDocs]: paginatedDocs,
+        ...meta,
+      };
     }
 
     Object.defineProperty(paginatedResult, path, {
-      value: meta,
+      value: resultValue,
       writable: false,
     });
   }
