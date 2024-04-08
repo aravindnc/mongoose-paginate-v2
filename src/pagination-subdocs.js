@@ -161,6 +161,7 @@ function paginateSubDocs(query, options, callback) {
         }
 
         populateResult(result, newPopulate).then((paginatedResult) => {
+          pagingOptions.count = result[newPopulate.path].length;
           // convert paginatedResult to pagination docs
           if (pagination && pagingOptions) {
             if (Array.isArray(pagingOptions)) {
