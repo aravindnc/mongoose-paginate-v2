@@ -86,9 +86,9 @@ function paginate(query, options, callback) {
 
       // Hack for mongo < v3.4
       if (Object.keys(collation).length > 0) {
-        countPromise = this.countDocuments(query).collation(collation).exec();
+        countPromise = this.countDocuments(query, findOptions).collation(collation).exec();
       } else {
-        countPromise = this.countDocuments(query).exec();
+        countPromise = this.countDocuments(query, findOptions).exec();
       }
     } else {
       if (useEstimatedCount === true) {
@@ -98,9 +98,9 @@ function paginate(query, options, callback) {
       } else {
         // Hack for mongo < v3.4
         if (Object.keys(collation).length > 0) {
-          countPromise = this.countDocuments(query).collation(collation).exec();
+          countPromise = this.countDocuments(query, findOptions).collation(collation).exec();
         } else {
-          countPromise = this.countDocuments(query).exec();
+          countPromise = this.countDocuments(query, findOptions).exec();
         }
       }
     }
