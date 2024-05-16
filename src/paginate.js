@@ -33,7 +33,7 @@ function paginate(query, options, callback) {
 
   let limit = defaultOptions.limit;
 
-  if (pagination) {
+  if (pagination && !isNaN(Number(options.limit))) {
     limit = parseInt(options.limit, 10) > 0 ? parseInt(options.limit, 10) : 0;
   }
 
@@ -65,7 +65,7 @@ function paginate(query, options, callback) {
     offset = parseInt(options.offset, 10);
     skip = offset;
   } else if (Object.prototype.hasOwnProperty.call(options, 'page')) {
-    page = parseInt(options.page, 10) < 1 ? 1 : parseInt(options.page, 10);
+    page = parseInt(options.page, 10) > 0 ? parseInt(options.page, 10) : 1;
     skip = (page - 1) * limit;
   } else {
     offset = 0;
