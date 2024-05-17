@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.8.1
+
+- Code refactoring
+- Add ability to configure paginateSubDocs meta structure using incoming plugin options
+- Fix: set count after result was populated (in case we have match filter etc)
+- Pass options argument to countDocuments
+- Fix: Use default values for page and limit when passing undefined
+
 ## v1.8.0
 
 - Support for Mongoose v8
