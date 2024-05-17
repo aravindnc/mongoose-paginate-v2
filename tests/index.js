@@ -743,6 +743,32 @@ describe('mongoose-paginate', function () {
   after(async function () {
     await mongoose.disconnect();
   });
+
+  it('pagination=default, limit/page=undefined -> return first 10', function () {
+    var query = {
+      title: {
+        $in: [/Book/i],
+      },
+    };
+
+    var options = {
+      page: undefined,
+      limit: undefined,
+    };
+
+    return Book.paginate(query, options).then((result) => {
+      expect(result.docs).to.have.length(10);
+      expect(result.totalDocs).to.equal(100);
+      expect(result.limit).to.equal(10);
+      expect(result.page).to.equal(1);
+      expect(result.pagingCounter).to.equal(1);
+      expect(result.hasPrevPage).to.equal(false);
+      expect(result.hasNextPage).to.equal(true);
+      expect(result.prevPage).to.equal(null);
+      expect(result.nextPage).to.equal(2);
+      expect(result.totalPages).to.equal(10);
+    });
+  });
 });
 
 function randomString(strLength, charSet) {

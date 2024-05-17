@@ -1,6 +1,15 @@
 # Changelog
 
+## v1.8.1
+
+[2024-05-17]
+
+- Fix #186
+- Fix - Use default values for page and limit when passing undefined
+
 ## v1.8.0
+
+[2024-01-05]
 
 - Support for Mongoose v8
 
@@ -9,7 +18,9 @@
 - Set dynamic type for docs items
 
 ## v1.7.3
+
 [2023-07-26]
+
 - Fix - set limit when limit is 0
 
 ## v1.7.2
