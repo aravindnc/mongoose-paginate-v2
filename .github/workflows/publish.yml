@@ -1,0 +1,35 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+
+name: Node.js Package
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14' # Change this to the appropriate Node.js version
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build # Change this command if you need to build your package before deployment
+
+      - name: Login to npm
+        run: npm login --registry=https://registry.npmjs.org/ --scope=@mongoose-paginate-v2 --always-auth
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
+          
+      - name: Publish to npm
+        run: npm publish --access public

@@ -9,7 +9,7 @@
 - Set dynamic type for docs items
 
 ## v1.7.3
-
+[2023-07-26]
 - Fix - set limit when limit is 0
 
 ## v1.7.2
