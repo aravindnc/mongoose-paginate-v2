@@ -12,20 +12,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      mongodb:
-        image: mongo:latest
-        ports:
-          - 27017:27017
-        options: >-
-          --health-cmd "mongo --eval 'db.runCommand({ ping: 1 })'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    # services:
+    #   mongodb:
+    #     image: mongo:latest
+    #     ports:
+    #       - 27017:27017
+    #     options: >-
+    #       --health-cmd "mongo --eval 'db.runCommand({ ping: 1 })'"
+    #       --health-interval 10s
+    #       --health-timeout 5s
+    #       --health-retries 5
 
     strategy:
       matrix:
         node-version: [ 'lts/*' ]
+        mongodb-version: ['6.0']
 
     steps:
       - name: Checkout repository
@@ -35,6 +36,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.10.0
+        with:
+          mongodb-version: ${{ matrix.mongodb-version }}
 
       - name: Install dependencies
         run: npm install
