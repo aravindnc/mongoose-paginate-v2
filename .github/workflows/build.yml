@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         node-version: [ 'lts/*' ]
-        mongodb-version: [latest]
+        mongodb-version: ['3.2.21', latest]
 
     steps:
       - name: Checkout repository
