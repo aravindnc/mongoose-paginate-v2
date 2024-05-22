@@ -139,7 +139,7 @@ function paginate(query, options, callback) {
           .collation(collation)
           .exec();
       } else {
-        countPromise = this.countDocuments(query, findOptions).exec();
+        countPromise = this.countDocuments(query).exec();
       }
     } else {
       if (useEstimatedCount === true) {
@@ -153,7 +153,7 @@ function paginate(query, options, callback) {
             .collation(collation)
             .exec();
         } else {
-          countPromise = this.countDocuments(query, findOptions).exec();
+          countPromise = this.countDocuments(query).exec();
         }
       }
     }
