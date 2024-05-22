@@ -3,10 +3,10 @@ name: build
 on:
   push:
     branches:
-      - main
+      - mongoose-5
   pull_request:
     branches:
-      - main
+      - mongoose-5
 
 jobs:
   build:
