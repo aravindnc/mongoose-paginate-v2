@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.8.2
+
+[2024-05-29]
+
+- MongoDB < 3.4: Fix for countDocument
+
 ## v1.8.1
 
 [2024-05-17]
