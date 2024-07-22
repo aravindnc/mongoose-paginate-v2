@@ -299,12 +299,17 @@ function paginate(query, options, callback) {
     });
 }
 
+function paginateQueryHelper(options) {
+  return this.model.paginate(this.getQuery(), options);
+}
+
 /**
  * @param {Schema} schema
  */
 module.exports = (schema) => {
   schema.statics.paginate = paginate;
   schema.statics.paginateSubDocs = paginateSubDocsHelper;
+  schema.query.paginate = paginateQueryHelper;
 };
 
 module.exports.PaginationParameters = PaginationParametersHelper;

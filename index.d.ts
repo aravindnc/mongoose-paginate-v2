@@ -134,6 +134,25 @@ declare module 'mongoose' {
       ) => void
     ): Promise<PaginateResult<PaginateDocument<UserType, TMethods, PaginateOptions>>>;
   }
+
+  interface Query<
+    ResultType,
+    DocType,
+    THelpers = NonNullable<unknown>,
+    RawDocType = DocType,
+    QueryOp = 'find',
+    TInstanceMethods = Record<string, never>,
+  > {
+    paginate<O extends PaginateOptions>(
+      options?: O
+    ): Promise<PaginateResult<PaginateDocument<RawDocType, TInstanceMethods, O>>>
+    paginate<UserType = ResultType, O extends PaginateOptions = PaginateOptions>(
+      options?: O
+    ): Promise<PaginateResult<PaginateDocument<UserType, TInstanceMethods, O>>>
+    paginate<UserType = ResultType>(
+      options?: PaginateOptions
+    ): Promise<PaginateResult<PaginateDocument<UserType, TInstanceMethods, PaginateOptions>>>
+  }
 }
 
 import mongoose = require('mongoose');
