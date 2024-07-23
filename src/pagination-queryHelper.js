@@ -5,7 +5,7 @@
  * @returns {Promise} - A promise that resolves to the paginated query result.
  */
 function paginateQueryHelper(options) {
-    return this.model.paginate(this.getQuery(), options);
+  return this.model.paginate(this.getQuery(), options);
 }
-  
+
 module.exports = paginateQueryHelper;
