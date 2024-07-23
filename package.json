@@ -1,6 +1,6 @@
 {
   "name": "mongoose-paginate-v2",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "description": "A custom pagination library for Mongoose with customizable labels.",
   "main": "dist/index.js",
   "types": "index.d.ts",
