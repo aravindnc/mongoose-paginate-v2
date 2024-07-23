@@ -25,18 +25,29 @@ let BookSchema = new mongoose.Schema({
   title: String,
   date: Date,
   price: Number,
+  active: Boolean,
   author: {
     type: mongoose.Schema.ObjectId,
     ref: 'Author',
   },
-  user: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: 'User',
-    },
-  ],
+  user: [{
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+  }, ],
   loc: Object,
 });
+
+BookSchema.query.whereActive = function () {
+  return this.find({
+    active: true
+  });
+};
+
+BookSchema.query.byName = function (name) {
+  return this.find({
+    title: new RegExp(name, 'i')
+  });
+};
 
 BookSchema.index({
   loc: '2dsphere',
@@ -122,6 +133,7 @@ describe('mongoose-paginate', function () {
           date: new Date(date.getTime() + i),
           author: author._id,
           user: users,
+          active: i % 2 === 0,
           loc: {
             type: 'Point',
             coordinates: [-10.97, 20.77],
@@ -524,7 +536,9 @@ describe('mongoose-paginate', function () {
   });
 
   it('Sub documents pagination', async () => {
-    var query = { title: 'Book #1' };
+    var query = {
+      title: 'Book #1'
+    };
     var option = {
       pagingOptions: {
         populate: {
@@ -597,20 +611,19 @@ describe('mongoose-paginate', function () {
   });
 
   it('estimated count works', async function () {
-    const result = await Book.paginate({}, { useEstimatedCount: true });
+    const result = await Book.paginate({}, {
+      useEstimatedCount: true
+    });
     expect(result).to.be.an.instanceOf(Object);
     assert.isNumber(result.totalDocs, 'totalDocs is a number');
   });
 
   it('count Custom Fn works', async function () {
-    const result = await Book.paginate(
-      {},
-      {
-        useCustomCountFn: function () {
-          return 100;
-        },
-      }
-    );
+    const result = await Book.paginate({}, {
+      useCustomCountFn: function () {
+        return 100;
+      },
+    });
 
     expect(result).to.be.an.instanceOf(Object);
     assert.isNumber(result.totalDocs, 'totalDocs is a number');
@@ -618,14 +631,11 @@ describe('mongoose-paginate', function () {
   });
 
   it('count Custom Fn with Promise return works', async function () {
-    const result = await Book.paginate(
-      {},
-      {
-        useCustomCountFn: function () {
-          return Promise.resolve(100);
-        },
-      }
-    );
+    const result = await Book.paginate({}, {
+      useCustomCountFn: function () {
+        return Promise.resolve(100);
+      },
+    });
 
     expect(result).to.be.an.instanceOf(Object);
     assert.isNumber(result.totalDocs, 'totalDocs is a number');
@@ -768,6 +778,21 @@ describe('mongoose-paginate', function () {
       expect(result.nextPage).to.equal(2);
       expect(result.totalPages).to.equal(10);
     });
+  });
+
+  it('pagination with queryHelper', function () {
+
+    var query = {};
+
+    var options = {
+      page: 1,
+      limit: 10,
+    };
+
+    return Book.find().whereActive().paginate(query, options).then((result) => {
+      expect(result.totalDocs).to.equal(50);
+    });
+
   });
 });
 
