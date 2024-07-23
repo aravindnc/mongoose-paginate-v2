@@ -22,6 +22,7 @@
  */
 const PaginationParametersHelper = require('./pagination-parameters');
 const paginateSubDocsHelper = require('./pagination-subdocs');
+const paginateQueryHelper = require('./pagination-queryHelper');
 
 const defaultOptions = {
   customLabels: {
@@ -297,10 +298,6 @@ function paginate(query, options, callback) {
     .catch((error) => {
       return isCallbackSpecified ? callback(error) : Promise.reject(error);
     });
-}
-
-function paginateQueryHelper(options) {
-  return this.model.paginate(this.getQuery(), options);
 }
 
 /**
