@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.8.4
+[2024-09-26]
+* Fix for Inconsistent declaration of Query (#220)
+
 ## v1.8.3
 [2024-07-23]
 * Added support for queryHelpers.
