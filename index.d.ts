@@ -134,7 +134,8 @@ declare module 'mongoose' {
       ) => void
     ): Promise<PaginateResult<PaginateDocument<UserType, TMethods, PaginateOptions>>>;
   }
-
+  
+  // @ts-expect-error overwriting of mongoose Query interface
   interface Query<
     ResultType,
     DocType,
