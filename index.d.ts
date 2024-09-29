@@ -91,13 +91,13 @@ declare module 'mongoose' {
   type PaginateDocument<
     T,
     TMethods,
-    TVirtuals,
+    TQueryHelpers,
     O extends PaginateOptions = {}
   > = O['lean'] extends true
     ? O['leanWithId'] extends true
       ? T & { id: string }
       : T
-    : HydratedDocument<T, TMethods, TVirtuals>;
+    : HydratedDocument<T, TMethods, TQueryHelpers>;
 
   interface PaginateModel<T, TQueryHelpers = {}, TMethods = {}>
     extends Model<T, TQueryHelpers, TMethods> {
@@ -106,36 +106,29 @@ declare module 'mongoose' {
       options?: O,
       callback?: (
         err: any,
-        result: PaginateResult<PaginateDocument<T, TMethods, O>>
+        result: PaginateResult<PaginateDocument<T, TMethods, TQueryHelpers, O>>
       ) => void
-    ): Promise<PaginateResult<PaginateDocument<T, TMethods, O>>>;
-  }
+    ): Promise<PaginateResult<PaginateDocument<T, TMethods, TQueryHelpers, O>>>;
 
-  interface PaginateModel<T, TQueryHelpers = {}, TMethods = {}>
-    extends Model<T, TQueryHelpers, TMethods> {
-    paginate<UserType = T, O extends PaginateOptions = PaginateOptions >(
+    paginate<UserType = T, O extends PaginateOptions = PaginateOptions>(
       query?: FilterQuery<T>,
       options?: O,
       callback?: (
         err: any,
-        result: PaginateResult<PaginateDocument<UserType, TMethods, O>>
+        result: PaginateResult<PaginateDocument<UserType, TMethods, TQueryHelpers, O>>
       ) => void
-    ): Promise<PaginateResult<PaginateDocument<UserType, TMethods, O>>>;
-  }
+    ): Promise<PaginateResult<PaginateDocument<UserType, TMethods, TQueryHelpers, O>>>;
 
-  interface PaginateModel<T, TQueryHelpers = {}, TMethods = {}>
-    extends Model<T, TQueryHelpers, TMethods> {
     paginate<UserType = T>(
       query?: FilterQuery<T>,
       options?: PaginateOptions,
       callback?: (
         err: any,
-        result: PaginateResult<PaginateDocument<UserType, TMethods, PaginateOptions>>
+        result: PaginateResult<PaginateDocument<UserType, TMethods, TQueryHelpers, PaginateOptions>>
       ) => void
-    ): Promise<PaginateResult<PaginateDocument<UserType, TMethods, PaginateOptions>>>;
+    ): Promise<PaginateResult<PaginateDocument<UserType, TMethods, TQueryHelpers, PaginateOptions>>>;
   }
-  
-  // @ts-expect-error overwriting of mongoose Query interface
+
   interface Query<
     ResultType,
     DocType,
@@ -146,13 +139,13 @@ declare module 'mongoose' {
   > {
     paginate<O extends PaginateOptions>(
       options?: O
-    ): Promise<PaginateResult<PaginateDocument<RawDocType, TInstanceMethods, O>>>
+    ): Promise<PaginateResult<PaginateDocument<RawDocType, TInstanceMethods, THelpers, O>>>
     paginate<UserType = ResultType, O extends PaginateOptions = PaginateOptions>(
       options?: O
-    ): Promise<PaginateResult<PaginateDocument<UserType, TInstanceMethods, O>>>
+    ): Promise<PaginateResult<PaginateDocument<UserType, TInstanceMethods, THelpers, O>>>
     paginate<UserType = ResultType>(
       options?: PaginateOptions
-    ): Promise<PaginateResult<PaginateDocument<UserType, TInstanceMethods, PaginateOptions>>>
+    ): Promise<PaginateResult<PaginateDocument<UserType, TInstanceMethods, THelpers, PaginateOptions>>>
   }
 }
 
