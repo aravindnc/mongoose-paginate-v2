@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.8.5
+[2024-09-29]
+* Fix: correct PaginateDocument type parameters and merge PaginateModel interface
+
 ## v1.8.4
 [2024-09-26]
 * Fix for Inconsistent declaration of Query (#220)
