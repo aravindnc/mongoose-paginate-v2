@@ -89,5 +89,8 @@
   },
   "engines": {
     "node": ">=4.0.0"
+  },
+  "dependencies": {
+    "mongoose-lean-virtuals": "^1.1.0"
   }
 }

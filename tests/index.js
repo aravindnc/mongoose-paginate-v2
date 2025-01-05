@@ -1,6 +1,7 @@
 'use strict';
 
 let mongoose = require('mongoose');
+let mongooseLeanVirtuals = require('mongoose-lean-virtuals');
 let expect = require('chai').expect;
 let assert = require('chai').assert;
 let mongoosePaginate = require('../dist/index');
@@ -13,6 +14,12 @@ let UserSchema = new mongoose.Schema({
   age: Number,
   gender: Number,
 });
+
+UserSchema.virtual('displayName').get(function () {
+  return `${this.name} (Age: ${this.age})`;
+});
+
+UserSchema.plugin(mongooseLeanVirtuals);
 
 let AuthorSchema = new mongoose.Schema({
   name: String,
@@ -30,22 +37,24 @@ let BookSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'Author',
   },
-  user: [{
-    type: mongoose.Schema.ObjectId,
-    ref: 'User',
-  }, ],
+  user: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+    },
+  ],
   loc: Object,
 });
 
 BookSchema.query.whereActive = function () {
   return this.find({
-    active: true
+    active: true,
   });
 };
 
 BookSchema.query.byName = function (name) {
   return this.find({
-    title: new RegExp(name, 'i')
+    title: new RegExp(name, 'i'),
   });
 };
 
@@ -183,6 +192,46 @@ describe('mongoose-paginate', function () {
       expect(result.nextPage).to.equal(6);
       expect(result.totalPages).to.equal(10);
     });
+  });
+
+  it('should work with lean and leanWithVirtuals options', async function () {
+    var query = {
+      title: {
+        $in: [/Book/i],
+      },
+    };
+
+    var options = {
+      limit: 10,
+      page: 1,
+      lean: true,
+      leanWithVirtuals: true,
+      populate: {
+        path: 'user',
+      },
+    };
+
+    const result = await Book.paginate(query, options);
+
+    // Test pagination metadata
+    expect(result.docs).to.have.length(10);
+    expect(result.totalDocs).to.equal(100);
+    expect(result.page).to.equal(1);
+
+    // Test populated user array has virtual fields
+    const firstBookUsers = result.docs[0].user;
+    expect(firstBookUsers).to.be.an('array');
+    expect(firstBookUsers[0]).to.have.property('displayName');
+
+    // Test virtual field value
+    const firstUser = firstBookUsers[0];
+    expect(firstUser.displayName).to.equal(
+      `${firstUser.name} (Age: ${firstUser.age})`
+    );
+
+    // Verify it's a plain JavaScript object (lean) not a Mongoose document
+    expect(firstBookUsers[0]).to.not.have.property('$__');
+    expect(firstBookUsers[0]).to.not.have.property('isNew');
   });
 
   it('first page with page and limit, limit > doc.length', function () {
@@ -537,7 +586,7 @@ describe('mongoose-paginate', function () {
 
   it('Sub documents pagination', async () => {
     var query = {
-      title: 'Book #1'
+      title: 'Book #1',
     };
     var option = {
       pagingOptions: {
@@ -611,19 +660,25 @@ describe('mongoose-paginate', function () {
   });
 
   it('estimated count works', async function () {
-    const result = await Book.paginate({}, {
-      useEstimatedCount: true
-    });
+    const result = await Book.paginate(
+      {},
+      {
+        useEstimatedCount: true,
+      }
+    );
     expect(result).to.be.an.instanceOf(Object);
     assert.isNumber(result.totalDocs, 'totalDocs is a number');
   });
 
   it('count Custom Fn works', async function () {
-    const result = await Book.paginate({}, {
-      useCustomCountFn: function () {
-        return 100;
-      },
-    });
+    const result = await Book.paginate(
+      {},
+      {
+        useCustomCountFn: function () {
+          return 100;
+        },
+      }
+    );
 
     expect(result).to.be.an.instanceOf(Object);
     assert.isNumber(result.totalDocs, 'totalDocs is a number');
@@ -631,11 +686,14 @@ describe('mongoose-paginate', function () {
   });
 
   it('count Custom Fn with Promise return works', async function () {
-    const result = await Book.paginate({}, {
-      useCustomCountFn: function () {
-        return Promise.resolve(100);
-      },
-    });
+    const result = await Book.paginate(
+      {},
+      {
+        useCustomCountFn: function () {
+          return Promise.resolve(100);
+        },
+      }
+    );
 
     expect(result).to.be.an.instanceOf(Object);
     assert.isNumber(result.totalDocs, 'totalDocs is a number');
@@ -781,7 +839,6 @@ describe('mongoose-paginate', function () {
   });
 
   it('pagination with queryHelper', function () {
-
     var query = {};
 
     var options = {
@@ -789,10 +846,12 @@ describe('mongoose-paginate', function () {
       limit: 10,
     };
 
-    return Book.find().whereActive().paginate(query, options).then((result) => {
-      expect(result.totalDocs).to.equal(50);
-    });
-
+    return Book.find()
+      .whereActive()
+      .paginate(query, options)
+      .then((result) => {
+        expect(result.totalDocs).to.equal(50);
+      });
   });
 });
 
