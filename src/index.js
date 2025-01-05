@@ -174,11 +174,11 @@ function paginate(query, options, callback) {
     mQuery.sort(sort);
 
     if (lean) {
-      mQuery.lean(lean);
-
       // use whit mongoose-lean-virtuals
       if (leanWithVirtuals) {
         mQuery.lean({ virtuals: leanWithVirtuals });
+      } else {
+        mQuery.lean(lean);
       }
     }
 
