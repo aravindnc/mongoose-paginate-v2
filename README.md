@@ -11,7 +11,6 @@
 ![npms.io](https://img.shields.io/npms-io/maintenance-score/mongoose-paginate-v2)
 ![npms.io](https://img.shields.io/npms-io/quality-score/mongoose-paginate-v2)
 
-
 > A custom pagination library for [Mongoose](http://mongoosejs.com) with customizable labels.
 
 If you are looking for aggregate query pagination, use this one [mongoose-aggregate-paginate-v2](https://github.com/aravindnc/mongoose-aggregate-paginate-v2)
@@ -91,6 +90,7 @@ Returns promise
   - `[projection]` {String | Object} - Get/set the query projection. [Documentation](https://mongoosejs.com/docs/api/query.html#query_Query-projection)
   - `[lean=false]` {Boolean} - Should return plain javascript objects instead of Mongoose documents? [Documentation](http://mongoosejs.com/docs/api.html#query_Query-lean)
   - `[leanWithId=true]` {Boolean} - If `lean` and `leanWithId` are `true`, adds `id` field with string representation of `_id` to every document
+  - `[leanWithVirtuals=false]` {Boolean} - If `lean` and `leanWithVirtuals` are `true`, includes virtuals in lean output. Requires [mongoose-lean-virtuals](https://www.npmjs.com/package/mongoose-lean-virtuals) plugin.
   - `[offset=0]` {Number} - Use `offset` or `page` to set skip position
   - `[page=1]` {Number}
   - `[limit=10]` {Number}
