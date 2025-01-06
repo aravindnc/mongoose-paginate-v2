@@ -10,6 +10,7 @@
  * @param {Array|Object|String} [options.populate]
  * @param {Boolean}             [options.lean=false]
  * @param {Boolean}             [options.leanWithId=true]
+ * @param {Boolean}             [options.leanWithVirtuals=false]
  * @param {Number}              [options.offset=0] - Use offset or page to set skip position
  * @param {Number}              [options.page=1]
  * @param {Number}              [options.limit=10]
@@ -41,6 +42,7 @@ const defaultOptions = {
   collation: {},
   lean: false,
   leanWithId: true,
+  leanWithVirtuals: false,
   limit: 10,
   projection: {},
   select: '',
@@ -65,6 +67,7 @@ function paginate(query, options, callback) {
     collation,
     lean,
     leanWithId,
+    leanWithVirtuals,
     populate,
     projection,
     read,
@@ -169,7 +172,15 @@ function paginate(query, options, callback) {
 
     mQuery.select(select);
     mQuery.sort(sort);
-    mQuery.lean(lean);
+
+    if (lean) {
+      // use whit mongoose-lean-virtuals
+      if (leanWithVirtuals) {
+        mQuery.lean({ virtuals: leanWithVirtuals });
+      } else {
+        mQuery.lean(lean);
+      }
+    }
 
     if (read && read.pref) {
       /**

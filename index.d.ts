@@ -23,15 +23,16 @@ declare module 'mongoose' {
     collation?: import('mongodb').CollationOptions | undefined;
     sort?: object | string | undefined;
     populate?:
-    | PopulateOptions[]
-    | string[]
-    | PopulateOptions
-    | string
-    | PopulateOptions
-    | undefined;
+      | PopulateOptions[]
+      | string[]
+      | PopulateOptions
+      | string
+      | PopulateOptions
+      | undefined;
     projection?: any;
     lean?: boolean | undefined;
     leanWithId?: boolean | undefined;
+    leanWithVirtuals?: boolean | undefined;
     offset?: number | undefined;
     page?: number | undefined;
     limit?: number | undefined;
@@ -49,12 +50,12 @@ declare module 'mongoose' {
   interface SubPaginateOptions {
     select?: object | string | undefined;
     populate?:
-    | PopulateOptions[]
-    | string[]
-    | PopulateOptions
-    | string
-    | PopulateOptions
-    | undefined;
+      | PopulateOptions[]
+      | string[]
+      | PopulateOptions
+      | string
+      | PopulateOptions
+      | undefined;
     pagination?: boolean | undefined;
     read?: ReadOptions | undefined;
     pagingOptions: SubDocumentPagingOptions | undefined;
@@ -62,12 +63,12 @@ declare module 'mongoose' {
 
   interface SubDocumentPagingOptions {
     populate?:
-    | PopulateOptions[]
-    | string[]
-    | PopulateOptions
-    | string
-    | PopulateOptions
-    | undefined;
+      | PopulateOptions[]
+      | string[]
+      | PopulateOptions
+      | string
+      | PopulateOptions
+      | undefined;
     page?: number | undefined;
     limit?: number | undefined;
   }
@@ -96,6 +97,8 @@ declare module 'mongoose' {
   > = O['lean'] extends true
     ? O['leanWithId'] extends true
       ? T & { id: string }
+      : O['leanWithVirtuals'] extends true
+      ? T & { [key: string]: any }
       : T
     : HydratedDocument<T, TMethods, TQueryHelpers>;
 
@@ -115,37 +118,61 @@ declare module 'mongoose' {
       options?: O,
       callback?: (
         err: any,
-        result: PaginateResult<PaginateDocument<UserType, TMethods, TQueryHelpers, O>>
+        result: PaginateResult<
+          PaginateDocument<UserType, TMethods, TQueryHelpers, O>
+        >
       ) => void
-    ): Promise<PaginateResult<PaginateDocument<UserType, TMethods, TQueryHelpers, O>>>;
+    ): Promise<
+      PaginateResult<PaginateDocument<UserType, TMethods, TQueryHelpers, O>>
+    >;
 
     paginate<UserType = T>(
       query?: FilterQuery<T>,
       options?: PaginateOptions,
       callback?: (
         err: any,
-        result: PaginateResult<PaginateDocument<UserType, TMethods, TQueryHelpers, PaginateOptions>>
+        result: PaginateResult<
+          PaginateDocument<UserType, TMethods, TQueryHelpers, PaginateOptions>
+        >
       ) => void
-    ): Promise<PaginateResult<PaginateDocument<UserType, TMethods, TQueryHelpers, PaginateOptions>>>;
+    ): Promise<
+      PaginateResult<
+        PaginateDocument<UserType, TMethods, TQueryHelpers, PaginateOptions>
+      >
+    >;
   }
 
+  // @ts-ignore
   interface Query<
     ResultType,
     DocType,
     THelpers = NonNullable<unknown>,
     RawDocType = DocType,
     QueryOp = 'find',
-    TInstanceMethods = Record<string, never>,
+    TInstanceMethods = Record<string, never>
   > {
     paginate<O extends PaginateOptions>(
       options?: O
-    ): Promise<PaginateResult<PaginateDocument<RawDocType, TInstanceMethods, THelpers, O>>>
-    paginate<UserType = ResultType, O extends PaginateOptions = PaginateOptions>(
+    ): Promise<
+      PaginateResult<
+        PaginateDocument<RawDocType, TInstanceMethods, THelpers, O>
+      >
+    >;
+    paginate<
+      UserType = ResultType,
+      O extends PaginateOptions = PaginateOptions
+    >(
       options?: O
-    ): Promise<PaginateResult<PaginateDocument<UserType, TInstanceMethods, THelpers, O>>>
+    ): Promise<
+      PaginateResult<PaginateDocument<UserType, TInstanceMethods, THelpers, O>>
+    >;
     paginate<UserType = ResultType>(
       options?: PaginateOptions
-    ): Promise<PaginateResult<PaginateDocument<UserType, TInstanceMethods, THelpers, PaginateOptions>>>
+    ): Promise<
+      PaginateResult<
+        PaginateDocument<UserType, TInstanceMethods, THelpers, PaginateOptions>
+      >
+    >;
   }
 }
 
