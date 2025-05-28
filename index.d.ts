@@ -146,16 +146,16 @@ declare module 'mongoose' {
   interface Query<
     ResultType,
     DocType,
-    THelpers = NonNullable<unknown>,
-    RawDocType = DocType,
+    THelpers = {},
+    RawDocType = unknown,
     QueryOp = 'find',
-    TInstanceMethods = Record<string, never>
+    TDocOverrides = Record<string, never>
   > {
     paginate<O extends PaginateOptions>(
       options?: O
     ): Promise<
       PaginateResult<
-        PaginateDocument<RawDocType, TInstanceMethods, THelpers, O>
+        PaginateDocument<RawDocType, TDocOverrides, THelpers, O>
       >
     >;
     paginate<
@@ -164,13 +164,13 @@ declare module 'mongoose' {
     >(
       options?: O
     ): Promise<
-      PaginateResult<PaginateDocument<UserType, TInstanceMethods, THelpers, O>>
+      PaginateResult<PaginateDocument<UserType, TDocOverrides, THelpers, O>>
     >;
     paginate<UserType = ResultType>(
       options?: PaginateOptions
     ): Promise<
       PaginateResult<
-        PaginateDocument<UserType, TInstanceMethods, THelpers, PaginateOptions>
+        PaginateDocument<UserType, TDocOverrides, THelpers, PaginateOptions>
       >
     >;
   }
