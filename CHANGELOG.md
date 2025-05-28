@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.9.1
+[2025-05-28]
+- Fix to make Query interface generics consistent with Mongoose 8.15
+
 ## v1.8.6
 
 [2025-01-05]
