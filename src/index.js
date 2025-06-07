@@ -15,7 +15,7 @@
  * @param {Number}              [options.page=1]
  * @param {Number}              [options.limit=10]
  * @param {Boolean}             [options.useEstimatedCount=true] - Enable estimatedDocumentCount for larger datasets. As the name says, the count may not abe accurate.
- * @param {Function}            [options.useCustomCountFn=false] - use custom function for count datasets.
+ * @param {(function(query: Object=): Promise<number>)} [options.useCustomCountFn=false] - Use custom function for count datasets. Receives `query` as an optional argument.
  * @param {Object}              [options.read={}] - Determines the MongoDB nodes from which to read.
  * @param {Function}            [callback]
  *
@@ -143,13 +143,18 @@ function paginate(query, options, callback) {
           .collation(collation)
           .exec();
       } else {
-        countPromise = this.countDocuments(query).exec();
+        // Используем estimatedDocumentCount, если query пустой, иначе countDocuments
+        if (!query || Object.keys(query).length === 0) {
+          countPromise = this.estimatedDocumentCount().exec();
+        } else {
+          countPromise = this.countDocuments(query).exec();
+        }
       }
     } else {
       if (useEstimatedCount === true) {
         countPromise = this.estimatedDocumentCount().exec();
       } else if (typeof useCustomCountFn === 'function') {
-        countPromise = useCustomCountFn();
+        countPromise = useCustomCountFn(query);
       } else {
         // Hack for mongo < v3.4
         if (Object.keys(collation).length > 0) {
@@ -157,7 +162,12 @@ function paginate(query, options, callback) {
             .collation(collation)
             .exec();
         } else {
-          countPromise = this.countDocuments(query).exec();
+          // Используем estimatedDocumentCount, если query пустой, иначе countDocuments
+          if (!query || Object.keys(query).length === 0) {
+            countPromise = this.estimatedDocumentCount().exec();
+          } else {
+            countPromise = this.countDocuments(query).exec();
+          }
         }
       }
     }
