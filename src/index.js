@@ -143,7 +143,12 @@ function paginate(query, options, callback) {
           .collation(collation)
           .exec();
       } else {
-        countPromise = this.countDocuments(query).exec();
+        // Используем estimatedDocumentCount, если query пустой, иначе countDocuments
+        if (!query || Object.keys(query).length === 0) {
+          countPromise = this.estimatedDocumentCount().exec();
+        } else {
+          countPromise = this.countDocuments(query).exec();
+        }
       }
     } else {
       if (useEstimatedCount === true) {
@@ -157,7 +162,12 @@ function paginate(query, options, callback) {
             .collation(collation)
             .exec();
         } else {
-          countPromise = this.countDocuments(query).exec();
+          // Используем estimatedDocumentCount, если query пустой, иначе countDocuments
+          if (!query || Object.keys(query).length === 0) {
+            countPromise = this.estimatedDocumentCount().exec();
+          } else {
+            countPromise = this.countDocuments(query).exec();
+          }
         }
       }
     }
