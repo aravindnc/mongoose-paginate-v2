@@ -1,7 +1,15 @@
 # Changelog
 
+## v1.9.2
+
+[2025-06-10]
+
+- Update useCustomCountFn parameter type in documentation and implementation
+
 ## v1.9.1
+
 [2025-05-28]
+
 - Fix to make Query interface generics consistent with Mongoose 8.15
 
 ## v1.8.6
