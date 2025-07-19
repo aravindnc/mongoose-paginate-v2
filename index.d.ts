@@ -81,7 +81,7 @@ declare module 'mongoose' {
     hasNextPage: boolean;
     page?: number | undefined;
     totalPages: number;
-    offset: number;
+    offset?: number | undefined;
     prevPage?: number | null | undefined;
     nextPage?: number | null | undefined;
     pagingCounter: number;
