@@ -155,7 +155,7 @@ describe('mongoose-paginate', function () {
     });
   });
 
-  afterEach(function () {});
+  afterEach(function () { });
 
   it('promise return test', function () {
     let promise = Book.paginate();
@@ -802,6 +802,98 @@ describe('mongoose-paginate', function () {
         testDescendingPrice(result);
       }
     );
+  });
+
+  after(async function () {
+    await mongoose.connection.db.dropDatabase();
+  });
+
+  after(async function () {
+    await mongoose.disconnect();
+  });
+
+  it('pagination=default, limit/page=undefined -> return first 10', function () {
+    var query = {
+      title: {
+        $in: [/Book/i],
+      },
+    };
+
+    var options = {
+      page: undefined,
+      limit: undefined,
+    };
+
+    return Book.paginate(query, options).then((result) => {
+      expect(result.docs).to.have.length(10);
+      expect(result.totalDocs).to.equal(100);
+      expect(result.limit).to.equal(10);
+      expect(result.page).to.equal(1);
+      expect(result.pagingCounter).to.equal(1);
+      expect(result.hasPrevPage).to.equal(false);
+      expect(result.hasNextPage).to.equal(true);
+      expect(result.prevPage).to.equal(null);
+      expect(result.nextPage).to.equal(2);
+      expect(result.totalPages).to.equal(10);
+    });
+  });
+
+  it('pagination with queryHelper', function () {
+    var query = {};
+
+    var options = {
+      page: 1,
+      limit: 10,
+    };
+
+    return Book.find()
+      .whereActive()
+      .paginate(query, options)
+      .then((result) => {
+        expect(result.totalDocs).to.equal(50);
+      });
+  });
+
+  it('should use estimatedDocumentCount when query is empty', async function () {
+    // This test checks that estimatedDocumentCount is used for empty queries.
+    // We expect totalDocs to be equal to the total number of documents in the collection.
+    const result = await Book.paginate({}, {});
+    expect(result.totalDocs).to.equal(100);
+  });
+
+  it('should use countDocuments when query is not empty', async function () {
+    // This test checks that countDocuments is used when a filter is present.
+    // We expect totalDocs to be less than the total number of documents if the filter matches fewer docs.
+    const result = await Book.paginate({ price: { $lt: 50 } }, {});
+    expect(result.totalDocs).to.be.lessThan(100);
+  });
+
+  it('should pass query as parameter to useCustomCountFn', async function () {
+    // This test checks that the query is passed to the custom count function.
+    // The custom function returns the count of documents where price is less than 50.
+    const result = await Book.paginate(
+      { price: { $lt: 50 } },
+      {
+        useCustomCountFn: function (query) {
+          // query should be { price: { $lt: 50 } }
+          return Book.countDocuments(query);
+        },
+      }
+    );
+    expect(result.totalDocs).to.be.lessThan(100);
+  });
+
+  it('should support async custom count function with query parameter', async function () {
+    // This test checks that an async custom count function receives the query and works as expected.
+    const result = await Book.paginate(
+      { price: { $lt: 50 } },
+      {
+        useCustomCountFn: async function (query) {
+          return Book.countDocuments(query);
+        },
+      }
+    );
+    expect(result.totalDocs).to.be.lessThan(100);
   });
 
   after(async function () {
