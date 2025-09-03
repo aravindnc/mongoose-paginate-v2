@@ -246,7 +246,7 @@ function paginate(query, options, callback) {
         [labelTotal]: count,
       };
 
-      let result = {};
+      let result;
 
       if (typeof offset !== 'undefined') {
         meta.offset = offset;
@@ -256,33 +256,33 @@ function paginate(query, options, callback) {
       const pages = limit > 0 ? Math.ceil(count / limit) || 1 : null;
 
       // Setting default values
-      meta[labelLimit] = count;
-      meta[labelTotalPages] = 1;
-      meta[labelPage] = page;
-      meta[labelPagingCounter] = (page - 1) * limit + 1;
+      if (labelLimit) meta[labelLimit] = count;
+      if (labelTotalPages) meta[labelTotalPages] = 1;
+      if (labelPage) meta[labelPage] = page;
+      if (labelPagingCounter) meta[labelPagingCounter] = (page - 1) * limit + 1;
 
-      meta[labelHasPrevPage] = false;
-      meta[labelHasNextPage] = false;
-      meta[labelPrevPage] = null;
-      meta[labelNextPage] = null;
+      if (labelHasPrevPage) meta[labelHasPrevPage] = false;
+      if (labelHasNextPage) meta[labelHasNextPage] = false;
+      if (labelPrevPage) meta[labelPrevPage] = null;
+      if (labelNextPage) meta[labelNextPage] = null;
 
       if (pagination) {
-        meta[labelLimit] = limit;
-        meta[labelTotalPages] = pages;
+        if (labelLimit) meta[labelLimit] = limit;
+        if (labelTotalPages) meta[labelTotalPages] = pages;
 
         // Set prev page
         if (page > 1) {
-          meta[labelHasPrevPage] = true;
-          meta[labelPrevPage] = page - 1;
+          if (labelHasPrevPage) meta[labelHasPrevPage] = true;
+          if (labelPrevPage) meta[labelPrevPage] = page - 1;
         } else if (page == 1 && typeof offset !== 'undefined' && offset !== 0) {
-          meta[labelHasPrevPage] = true;
-          meta[labelPrevPage] = 1;
+          if (labelHasPrevPage) meta[labelHasPrevPage] = true;
+          if (labelPrevPage) meta[labelPrevPage] = 1;
         }
 
         // Set next page
         if (page < pages) {
-          meta[labelHasNextPage] = true;
-          meta[labelNextPage] = page + 1;
+          if (labelHasNextPage) meta[labelHasNextPage] = true;
+          if (labelNextPage) meta[labelNextPage] = page + 1;
         }
       }
 
@@ -290,14 +290,14 @@ function paginate(query, options, callback) {
       delete meta['false'];
 
       if (limit == 0) {
-        meta[labelLimit] = 0;
-        meta[labelTotalPages] = 1;
-        meta[labelPage] = 1;
-        meta[labelPagingCounter] = 1;
-        meta[labelPrevPage] = null;
-        meta[labelNextPage] = null;
-        meta[labelHasPrevPage] = false;
-        meta[labelHasNextPage] = false;
+        if (labelLimit) meta[labelLimit] = 0;
+        if (labelTotalPages) meta[labelTotalPages] = 1;
+        if (labelPage) meta[labelPage] = 1;
+        if (labelPagingCounter) meta[labelPagingCounter] = 1;
+        if (labelPrevPage) meta[labelPrevPage] = null;
+        if (labelNextPage) meta[labelNextPage] = null;
+        if (labelHasPrevPage) meta[labelHasPrevPage] = false;
+        if (labelHasNextPage) meta[labelHasNextPage] = false;
       }
 
       if (labelMeta) {
