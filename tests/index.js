@@ -804,6 +804,117 @@ describe('mongoose-paginate', function () {
     );
   });
 
+  it('page exceeds total pages without useDefaultPageOnExceed - returns empty array', function () {
+    var query = {
+      title: {
+        $in: [/Book/i],
+      },
+    };
+
+    var options = {
+      limit: 10,
+      page: 15, // Total pages is 10, so this exceeds
+      lean: true,
+    };
+
+    return Book.paginate(query, options).then((result) => {
+      expect(result.docs).to.have.length(0);
+      expect(result.totalDocs).to.equal(100);
+      expect(result.limit).to.equal(10);
+      expect(result.page).to.equal(15);
+      expect(result.pagingCounter).to.equal(141);
+      expect(result.hasPrevPage).to.equal(true);
+      expect(result.hasNextPage).to.equal(false);
+      expect(result.prevPage).to.equal(14);
+      expect(result.nextPage).to.equal(null);
+      expect(result.totalPages).to.equal(10);
+    });
+  });
+
+  it('page exceeds total pages with useDefaultPageOnExceed - returns last page', function () {
+    var query = {
+      title: {
+        $in: [/Book/i],
+      },
+    };
+
+    var options = {
+      limit: 10,
+      page: 15, // Total pages is 10, so this exceeds
+      lean: true,
+      useDefaultPageOnExceed: true,
+    };
+
+    return Book.paginate(query, options).then((result) => {
+      expect(result.docs).to.have.length(10);
+      expect(result.totalDocs).to.equal(100);
+      expect(result.limit).to.equal(10);
+      expect(result.page).to.equal(10); // Should be adjusted to last page
+      expect(result.pagingCounter).to.equal(91);
+      expect(result.hasPrevPage).to.equal(true);
+      expect(result.hasNextPage).to.equal(false);
+      expect(result.prevPage).to.equal(9);
+      expect(result.nextPage).to.equal(null);
+      expect(result.totalPages).to.equal(10);
+    });
+  });
+
+  it('page equals total pages with useDefaultPageOnExceed - works normally', function () {
+    var query = {
+      title: {
+        $in: [/Book/i],
+      },
+    };
+
+    var options = {
+      limit: 10,
+      page: 10, // Exactly the last page
+      lean: true,
+      useDefaultPageOnExceed: true,
+    };
+
+    return Book.paginate(query, options).then((result) => {
+      expect(result.docs).to.have.length(10);
+      expect(result.totalDocs).to.equal(100);
+      expect(result.limit).to.equal(10);
+      expect(result.page).to.equal(10);
+      expect(result.pagingCounter).to.equal(91);
+      expect(result.hasPrevPage).to.equal(true);
+      expect(result.hasNextPage).to.equal(false);
+      expect(result.prevPage).to.equal(9);
+      expect(result.nextPage).to.equal(null);
+      expect(result.totalPages).to.equal(10);
+    });
+  });
+
+  it('page within bounds with useDefaultPageOnExceed - works normally', function () {
+    var query = {
+      title: {
+        $in: [/Book/i],
+      },
+    };
+
+    var options = {
+      limit: 10,
+      page: 5,
+      lean: true,
+      useDefaultPageOnExceed: true,
+    };
+
+    return Book.paginate(query, options).then((result) => {
+      expect(result.docs).to.have.length(10);
+      expect(result.totalDocs).to.equal(100);
+      expect(result.limit).to.equal(10);
+      expect(result.page).to.equal(5);
+      expect(result.pagingCounter).to.equal(41);
+      expect(result.hasPrevPage).to.equal(true);
+      expect(result.hasNextPage).to.equal(true);
+      expect(result.prevPage).to.equal(4);
+      expect(result.nextPage).to.equal(6);
+      expect(result.totalPages).to.equal(10);
+    });
+  });
+
   after(async function () {
     await mongoose.connection.db.dropDatabase();
   });

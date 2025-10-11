@@ -45,6 +45,8 @@ declare module 'mongoose' {
     allowDiskUse?: boolean | undefined;
     read?: ReadOptions | undefined;
     options?: QueryOptions | undefined;
+    /* If set to `true`, it will default to last page when the requested page exceeds total pages. (Default: `false`) */
+    useDefaultPageOnExceed?: boolean | undefined;
   }
 
   interface SubPaginateOptions {

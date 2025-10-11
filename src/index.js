@@ -53,6 +53,7 @@ const defaultOptions = {
   forceCountFn: false,
   allowDiskUse: false,
   customFind: 'find',
+  useDefaultPageOnExceed: false,
 };
 
 function paginate(query, options, callback) {
@@ -79,6 +80,7 @@ function paginate(query, options, callback) {
     forceCountFn,
     allowDiskUse,
     customFind,
+    useDefaultPageOnExceed,
   } = options;
 
   const customLabels = {
@@ -173,68 +175,89 @@ function paginate(query, options, callback) {
     }
   }
 
-  if (limit) {
-    const mQuery = this[customFind](query, projection, findOptions);
+  // If useDefaultPageOnExceed is enabled, we need to get count first to adjust page
+  const shouldAdjustPage = pagination && useDefaultPageOnExceed && !Object.prototype.hasOwnProperty.call(options, 'offset');
+  
+  const buildDocsQuery = (adjustedSkip) => {
+    if (limit) {
+      const mQuery = this[customFind](query, projection, findOptions);
 
-    if (populate) {
-      mQuery.populate(populate);
-    }
-
-    mQuery.select(select);
-    mQuery.sort(sort);
-
-    if (lean) {
-      // use whit mongoose-lean-virtuals
-      if (leanWithVirtuals) {
-        mQuery.lean({ virtuals: leanWithVirtuals });
-      } else {
-        mQuery.lean(lean);
+      if (populate) {
+        mQuery.populate(populate);
       }
-    }
 
-    if (read && read.pref) {
-      /**
-       * Determines the MongoDB nodes from which to read.
-       * @param read.pref one of the listed preference options or aliases
-       * @param read.tags optional tags for this query
-       */
-      mQuery.read(read.pref, read.tags);
-    }
+      mQuery.select(select);
+      mQuery.sort(sort);
 
-    // Hack for mongo < v3.4
-    if (Object.keys(collation).length > 0) {
-      mQuery.collation(collation);
-    }
-
-    if (pagination) {
-      mQuery.skip(skip);
-      mQuery.limit(limit);
-    }
-
-    try {
-      if (allowDiskUse === true) {
-        mQuery.allowDiskUse();
+      if (lean) {
+        // use whit mongoose-lean-virtuals
+        if (leanWithVirtuals) {
+          mQuery.lean({ virtuals: leanWithVirtuals });
+        } else {
+          mQuery.lean(lean);
+        }
       }
-    } catch (ex) {
-      console.error('Your MongoDB version does not support `allowDiskUse`.');
-    }
 
-    docsPromise = mQuery.exec();
+      if (read && read.pref) {
+        /**
+         * Determines the MongoDB nodes from which to read.
+         * @param read.pref one of the listed preference options or aliases
+         * @param read.tags optional tags for this query
+         */
+        mQuery.read(read.pref, read.tags);
+      }
 
-    if (lean && leanWithId) {
-      docsPromise = docsPromise.then((docs) => {
-        docs.forEach((doc) => {
-          if (doc._id) {
-            doc.id = String(doc._id);
-          }
+      // Hack for mongo < v3.4
+      if (Object.keys(collation).length > 0) {
+        mQuery.collation(collation);
+      }
+
+      if (pagination) {
+        mQuery.skip(adjustedSkip);
+        mQuery.limit(limit);
+      }
+
+      try {
+        if (allowDiskUse === true) {
+          mQuery.allowDiskUse();
+        }
+      } catch (ex) {
+        console.error('Your MongoDB version does not support `allowDiskUse`.');
+      }
+
+      let promise = mQuery.exec();
+
+      if (lean && leanWithId) {
+        promise = promise.then((docs) => {
+          docs.forEach((doc) => {
+            if (doc._id) {
+              doc.id = String(doc._id);
+            }
+          });
+          return docs;
         });
-        return docs;
-      });
-    }
-  }
+      }
 
-  return Promise.all([countPromise, docsPromise])
-    .then((values) => {
+      return promise;
+    }
+    return Promise.resolve([]);
+  };
+
+  if (shouldAdjustPage) {
+    // Wait for count first, then adjust page if needed
+    return countPromise.then((count) => {
+      const pages = limit > 0 ? Math.ceil(count / limit) || 1 : 1;
+      
+      // If requested page exceeds total pages, adjust to last page
+      if (page > pages) {
+        page = pages;
+        skip = (page - 1) * limit;
+      }
+      
+      docsPromise = buildDocsQuery(skip);
+      
+      return Promise.all([Promise.resolve(count), docsPromise]);
+    }).then((values) => {
       let count = values[0];
       const docs = values[1];
 
@@ -319,6 +342,97 @@ function paginate(query, options, callback) {
     .catch((error) => {
       return isCallbackSpecified ? callback(error) : Promise.reject(error);
     });
+  } else {
+    // Original flow when useDefaultPageOnExceed is false
+    docsPromise = buildDocsQuery(skip);
+
+    return Promise.all([countPromise, docsPromise])
+      .then((values) => {
+        let count = values[0];
+        const docs = values[1];
+
+        if (pagination !== true) {
+          count = docs.length;
+        }
+
+        const meta = {
+          [labelTotal]: count,
+        };
+
+        let result;
+
+        if (typeof offset !== 'undefined') {
+          meta.offset = offset;
+          page = Math.ceil((offset + 1) / limit);
+        }
+
+        const pages = limit > 0 ? Math.ceil(count / limit) || 1 : null;
+
+        // Setting default values
+        if (labelLimit) meta[labelLimit] = count;
+        if (labelTotalPages) meta[labelTotalPages] = 1;
+        if (labelPage) meta[labelPage] = page;
+        if (labelPagingCounter) meta[labelPagingCounter] = (page - 1) * limit + 1;
+
+        if (labelHasPrevPage) meta[labelHasPrevPage] = false;
+        if (labelHasNextPage) meta[labelHasNextPage] = false;
+        if (labelPrevPage) meta[labelPrevPage] = null;
+        if (labelNextPage) meta[labelNextPage] = null;
+
+        if (pagination) {
+          if (labelLimit) meta[labelLimit] = limit;
+          if (labelTotalPages) meta[labelTotalPages] = pages;
+
+          // Set prev page
+          if (page > 1) {
+            if (labelHasPrevPage) meta[labelHasPrevPage] = true;
+            if (labelPrevPage) meta[labelPrevPage] = page - 1;
+          } else if (page == 1 && typeof offset !== 'undefined' && offset !== 0) {
+            if (labelHasPrevPage) meta[labelHasPrevPage] = true;
+            if (labelPrevPage) meta[labelPrevPage] = 1;
+          }
+
+          // Set next page
+          if (page < pages) {
+            if (labelHasNextPage) meta[labelHasNextPage] = true;
+            if (labelNextPage) meta[labelNextPage] = page + 1;
+          }
+        }
+
+        // Remove customLabels set to false
+        delete meta['false'];
+
+        if (limit == 0) {
+          if (labelLimit) meta[labelLimit] = 0;
+          if (labelTotalPages) meta[labelTotalPages] = 1;
+          if (labelPage) meta[labelPage] = 1;
+          if (labelPagingCounter) meta[labelPagingCounter] = 1;
+          if (labelPrevPage) meta[labelPrevPage] = null;
+          if (labelNextPage) meta[labelNextPage] = null;
+          if (labelHasPrevPage) meta[labelHasPrevPage] = false;
+          if (labelHasNextPage) meta[labelHasNextPage] = false;
+        }
+
+        if (labelMeta) {
+          result = {
+            [labelDocs]: docs,
+            [labelMeta]: meta,
+          };
+        } else {
+          result = {
+            [labelDocs]: docs,
+            ...meta,
+          };
+        }
+
+        return isCallbackSpecified
+          ? callback(null, result)
+          : Promise.resolve(result);
+      })
+      .catch((error) => {
+        return isCallbackSpecified ? callback(error) : Promise.reject(error);
+      });
+  }
 }
 
 /**
