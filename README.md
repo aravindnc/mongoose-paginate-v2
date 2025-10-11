@@ -99,6 +99,7 @@ Returns promise
   - `[useEstimatedCount]` {Boolean} - Enable [estimatedDocumentCount](https://docs.mongodb.com/manual/reference/method/db.collection.estimatedDocumentCount/) for larger datasets. Does not count based on given query, so the count will match entire collection size. (Default: `False`)
   - `[useCustomCountFn]` {Boolean} - Enable custom function for count datasets. (Default: `False`)
   - `[forceCountFn]` {Boolean} - Set this to true, if you need to support \$geo queries. (Default: `False`)
+  - `[useDefaultPageOnExceed]` {Boolean} - If set to true, it will default to the last available page if the requested page exceeds the total number of pages. (Default: `False`)
   - `[customFind]` {String} - Method name for the find method which called from Model object. This options can be used to change default behaviour for pagination in case of different use cases (like [mongoose-soft-delete](https://github.com/dsanel/mongoose-delete#method-overridden)). (Default `'find'`)
   - `[allowDiskUse]` {Boolean} - Set this to true, which allows the MongoDB server to use more than 100 MB for query. This option can let you work around QueryExceededMemoryLimitNoDiskUseAllowed errors from the MongoDB server. (Default: `False`)
   - `[read]` {Object} - Determines the MongoDB nodes from which to read. Below are the available options.
@@ -341,6 +342,39 @@ const options = {
 
 Model.paginate({}, options, function (err, result) {
   // result.docs
+});
+```
+
+#### Using `useDefaultPageOnExceed`
+
+If you need to default to the last available page when the requested page exceeds the total number of pages, then set `useDefaultPageOnExceed` as true. By default, it returns an empty array when you exceed the total pages.
+
+```javascript
+const options = {
+  page: 15, // Total pages is only 10
+  limit: 10,
+  useDefaultPageOnExceed: true,
+};
+
+Model.paginate({}, options, function (err, result) {
+  // result.docs - array of last page documents
+  // result.page = 10 (adjusted to last page)
+  // result.totalPages = 10
+});
+```
+
+Without `useDefaultPageOnExceed`:
+
+```javascript
+const options = {
+  page: 15, // Total pages is only 10
+  limit: 10,
+};
+
+Model.paginate({}, options, function (err, result) {
+  // result.docs - empty array
+  // result.page = 15 (requested page)
+  // result.totalPages = 10
 });
 ```
 
