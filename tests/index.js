@@ -853,6 +853,57 @@ describe('mongoose-paginate', function () {
         expect(result.totalDocs).to.equal(50);
       });
   });
+
+  it('collation with session in transaction should work correctly', async function () {
+    // This test demonstrates a bug where collation + session in transaction
+    // causes a transaction mismatch error.
+    //
+    // The issue is in how collation is applied to countDocuments:
+    //   this.countDocuments(query, findOptions).collation(collation).exec()
+    //
+    // When findOptions contains a session inside a transaction and collation is chained,
+    // the session context is lost, causing transaction errors.
+    //
+    // The fix is to pass collation as part of the options object instead of chaining:
+    //   this.countDocuments(query, { ...findOptions, collation }).exec()
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const query = {
+        title: {
+          $in: [/Book/i],
+        },
+      };
+
+      const options = {
+        limit: 10,
+        page: 1,
+        collation: {
+          locale: 'en',
+          strength: 2,
+        },
+        options: {
+          session: session,
+        },
+      };
+
+      const result = await Book.paginate(query, options);
+
+      expect(result.docs).to.have.length(10);
+      expect(result.totalDocs).to.equal(100);
+      expect(result.totalPages).to.equal(10);
+      expect(result.hasNextPage).to.equal(true);
+
+      await session.commitTransaction();
+    } catch (err) {
+      await session.abortTransaction();
+      throw err;
+    } finally {
+      await session.endSession();
+    }
+  });
 });
 
 function randomString(strLength, charSet) {
