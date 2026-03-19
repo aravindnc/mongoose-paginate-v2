@@ -95,6 +95,12 @@ function paginate(query, options, callback) {
   const isCallbackSpecified = typeof callback === 'function';
   const findOptions = options.options;
 
+  // Create countOptions with collation included to preserve session context in transactions
+  const countOptions =
+    Object.keys(collation).length > 0
+      ? { ...findOptions, collation }
+      : findOptions;
+
   let offset;
   let page;
   let skip;
@@ -137,18 +143,11 @@ function paginate(query, options, callback) {
     if (forceCountFn === true) {
       // Deprecated since starting from MongoDB Node.JS driver v3.1
 
-      // Hack for mongo < v3.4
-      if (Object.keys(collation).length > 0) {
-        countPromise = this.countDocuments(query, findOptions)
-          .collation(collation)
-          .exec();
+      // Используем estimatedDocumentCount, если query пустой, иначе countDocuments
+      if (!query || Object.keys(query).length === 0) {
+        countPromise = this.estimatedDocumentCount().exec();
       } else {
-        // Используем estimatedDocumentCount, если query пустой, иначе countDocuments
-        if (!query || Object.keys(query).length === 0) {
-          countPromise = this.estimatedDocumentCount().exec();
-        } else {
-          countPromise = this.countDocuments(query).exec();
-        }
+        countPromise = this.countDocuments(query, countOptions).exec();
       }
     } else {
       if (useEstimatedCount === true) {
@@ -156,25 +155,19 @@ function paginate(query, options, callback) {
       } else if (typeof useCustomCountFn === 'function') {
         countPromise = useCustomCountFn(query);
       } else {
-        // Hack for mongo < v3.4
-        if (Object.keys(collation).length > 0) {
-          countPromise = this.countDocuments(query, findOptions)
-            .collation(collation)
-            .exec();
+        // Используем estimatedDocumentCount, если query пустой, иначе countDocuments
+        if (!query || Object.keys(query).length === 0) {
+          countPromise = this.estimatedDocumentCount().exec();
         } else {
-          // Используем estimatedDocumentCount, если query пустой, иначе countDocuments
-          if (!query || Object.keys(query).length === 0) {
-            countPromise = this.estimatedDocumentCount().exec();
-          } else {
-            countPromise = this.countDocuments(query).exec();
-          }
+          countPromise = this.countDocuments(query, countOptions).exec();
         }
       }
     }
   }
 
   if (limit) {
-    const mQuery = this[customFind](query, projection, findOptions);
+    // Use countOptions (which includes collation) to preserve session context in transactions
+    const mQuery = this[customFind](query, projection, countOptions);
 
     if (populate) {
       mQuery.populate(populate);
@@ -199,11 +192,6 @@ function paginate(query, options, callback) {
        * @param read.tags optional tags for this query
        */
       mQuery.read(read.pref, read.tags);
-    }
-
-    // Hack for mongo < v3.4
-    if (Object.keys(collation).length > 0) {
-      mQuery.collation(collation);
     }
 
     if (pagination) {

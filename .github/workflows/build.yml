@@ -32,6 +32,7 @@ jobs:
         uses: supercharge/mongodb-github-action@1.11.0
         with:
           mongodb-version: ${{ matrix.mongodb-version }}
+          mongodb-replica-set: rs0
 
       - name: Install dependencies
         run: npm install
