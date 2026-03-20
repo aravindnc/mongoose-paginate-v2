@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.9.3
+
+[2026-03-20]
+
+- Fix: pass collation as option instead of chaining to preserve session context (#240)
+
 ## v1.9.2
 
 [2025-06-10]
