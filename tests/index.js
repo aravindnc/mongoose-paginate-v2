@@ -855,6 +855,7 @@ describe('mongoose-paginate', function () {
   });
 
   it('collation with session in transaction should work correctly', async function () {
+    // Transactions require a replica set
     if (
       !mongoose.connection.client.topology.description.type.includes(
         'ReplicaSet'
@@ -863,18 +864,8 @@ describe('mongoose-paginate', function () {
       this.skip();
     }
 
-    // This test demonstrates a bug where collation + session in transaction
-    // causes a transaction mismatch error.
-    //
-    // The issue is in how collation is applied to countDocuments:
-    //   this.countDocuments(query, findOptions).collation(collation).exec()
-    //
-    // When findOptions contains a session inside a transaction and collation is chained,
-    // the session context is lost, causing transaction errors.
-    //
-    // The fix is to pass collation as part of the options object instead of chaining:
-    //   this.countDocuments(query, { ...findOptions, collation }).exec()
-
+    // Tests that collation + session in a transaction maintains session context.
+    // Previously, chaining .collation() after countDocuments broke the session.
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -914,17 +905,10 @@ describe('mongoose-paginate', function () {
   });
 
   it('should not pass limit from options.options to countDocuments', async function () {
-    // This test demonstrates a bug where limit in options.options gets passed to countDocuments.
-    // MongoDB's countDocuments applies the limit to the count result, causing incorrect totalDocs.
-    //
-    // When options.options = { limit: 10 } and collation is enabled:
-    //   countOptions = { ...findOptions, collation } = { limit: 10, collation: {...} }
-    //   this.countDocuments(query, countOptions).exec() // Returns max 10, not actual count!
-    //
-    // The fix: extract only valid countDocuments options (session, hint, etc.) and exclude
-    // limit/skip which are only meant for the find query.
-
-    const query = { active: true }; // Match all active books (50 of them)
+    // When options.options contains { limit: 10 }, that limit was being passed to
+    // countDocuments(). MongoDB applies limit to the count result, so totalDocs
+    // would return 10 instead of the actual count (e.g., 50).
+    const query = { active: true };
 
     const options = {
       limit: 10,
