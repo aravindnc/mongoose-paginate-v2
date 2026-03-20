@@ -108,16 +108,13 @@ function paginate(query, options, callback) {
     if (findOptions.maxTimeMS)
       countBaseOptions.maxTimeMS = findOptions.maxTimeMS;
   }
-  const countOptions =
-    Object.keys(collation).length > 0
-      ? { ...countBaseOptions, collation }
-      : countBaseOptions;
 
-  // Create queryOptions for find - includes all options including collation
-  const queryOptions =
-    Object.keys(collation).length > 0
-      ? { ...findOptions, collation }
-      : findOptions;
+  let countOptions = countBaseOptions;
+  let queryOptions = findOptions;
+  if (Object.keys(collation).length > 0) {
+    countOptions = { ...countBaseOptions, collation };
+    queryOptions = { ...findOptions, collation };
+  }
 
   let offset;
   let page;
