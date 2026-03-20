@@ -855,6 +855,14 @@ describe('mongoose-paginate', function () {
   });
 
   it('collation with session in transaction should work correctly', async function () {
+    if (
+      !mongoose.connection.client.topology.description.type.includes(
+        'ReplicaSet'
+      )
+    ) {
+      this.skip();
+    }
+
     // This test demonstrates a bug where collation + session in transaction
     // causes a transaction mismatch error.
     //
