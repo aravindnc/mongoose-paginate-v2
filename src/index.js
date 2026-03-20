@@ -95,8 +95,26 @@ function paginate(query, options, callback) {
   const isCallbackSpecified = typeof callback === 'function';
   const findOptions = options.options;
 
-  // Create countOptions with collation included to preserve session context in transactions
+  // Create countOptions for countDocuments - exclude limit/skip which shouldn't be passed to count
+  // MongoDB's countDocuments applies limit to the count result, causing incorrect totalDocs
+  const countBaseOptions = {};
+  if (findOptions) {
+    if (findOptions.session) countBaseOptions.session = findOptions.session;
+    if (findOptions.hint) countBaseOptions.hint = findOptions.hint;
+    if (findOptions.readConcern)
+      countBaseOptions.readConcern = findOptions.readConcern;
+    if (findOptions.readPreference)
+      countBaseOptions.readPreference = findOptions.readPreference;
+    if (findOptions.maxTimeMS)
+      countBaseOptions.maxTimeMS = findOptions.maxTimeMS;
+  }
   const countOptions =
+    Object.keys(collation).length > 0
+      ? { ...countBaseOptions, collation }
+      : countBaseOptions;
+
+  // Create queryOptions for find - includes all options including collation
+  const queryOptions =
     Object.keys(collation).length > 0
       ? { ...findOptions, collation }
       : findOptions;
@@ -166,8 +184,8 @@ function paginate(query, options, callback) {
   }
 
   if (limit) {
-    // Use countOptions (which includes collation) to preserve session context in transactions
-    const mQuery = this[customFind](query, projection, countOptions);
+    // Use queryOptions (which includes collation and all find options) for the query
+    const mQuery = this[customFind](query, projection, queryOptions);
 
     if (populate) {
       mQuery.populate(populate);

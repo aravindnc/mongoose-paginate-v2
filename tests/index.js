@@ -912,6 +912,40 @@ describe('mongoose-paginate', function () {
       await session.endSession();
     }
   });
+
+  it('should not pass limit from options.options to countDocuments', async function () {
+    // This test demonstrates a bug where limit in options.options gets passed to countDocuments.
+    // MongoDB's countDocuments applies the limit to the count result, causing incorrect totalDocs.
+    //
+    // When options.options = { limit: 10 } and collation is enabled:
+    //   countOptions = { ...findOptions, collation } = { limit: 10, collation: {...} }
+    //   this.countDocuments(query, countOptions).exec() // Returns max 10, not actual count!
+    //
+    // The fix: extract only valid countDocuments options (session, hint, etc.) and exclude
+    // limit/skip which are only meant for the find query.
+
+    const query = { active: true }; // Match all active books (50 of them)
+
+    const options = {
+      limit: 10,
+      page: 1,
+      collation: {
+        locale: 'en',
+        strength: 2,
+      },
+      options: {
+        limit: 10, // This should NOT be passed to countDocuments
+      },
+    };
+
+    const result = await Book.paginate(query, options);
+
+    // Bug: totalDocs returns 10 (the limit) instead of 50 (actual count)
+    expect(result.docs).to.have.length(10);
+    expect(result.totalDocs).to.equal(50); // This fails with the bug - returns 10
+    expect(result.totalPages).to.equal(5);
+    expect(result.hasNextPage).to.equal(true);
+  });
 });
 
 function randomString(strLength, charSet) {
