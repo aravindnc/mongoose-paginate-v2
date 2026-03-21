@@ -855,6 +855,7 @@ describe('mongoose-paginate', function () {
   });
 
   it('collation with session in transaction should work correctly', async function () {
+    // Transactions require a replica set
     if (
       !mongoose.connection.client.topology.description.type.includes(
         'ReplicaSet'
@@ -863,18 +864,8 @@ describe('mongoose-paginate', function () {
       this.skip();
     }
 
-    // This test demonstrates a bug where collation + session in transaction
-    // causes a transaction mismatch error.
-    //
-    // The issue is in how collation is applied to countDocuments:
-    //   this.countDocuments(query, findOptions).collation(collation).exec()
-    //
-    // When findOptions contains a session inside a transaction and collation is chained,
-    // the session context is lost, causing transaction errors.
-    //
-    // The fix is to pass collation as part of the options object instead of chaining:
-    //   this.countDocuments(query, { ...findOptions, collation }).exec()
-
+    // Tests that collation + session in a transaction maintains session context.
+    // Previously, chaining .collation() after countDocuments broke the session.
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -911,6 +902,33 @@ describe('mongoose-paginate', function () {
     } finally {
       await session.endSession();
     }
+  });
+
+  it('should not pass limit from options.options to countDocuments', async function () {
+    // When options.options contains { limit: 10 }, that limit was being passed to
+    // countDocuments(). MongoDB applies limit to the count result, so totalDocs
+    // would return 10 instead of the actual count (e.g., 50).
+    const query = { active: true };
+
+    const options = {
+      limit: 10,
+      page: 1,
+      collation: {
+        locale: 'en',
+        strength: 2,
+      },
+      options: {
+        limit: 10, // This should NOT be passed to countDocuments
+      },
+    };
+
+    const result = await Book.paginate(query, options);
+
+    // Bug: totalDocs returns 10 (the limit) instead of 50 (actual count)
+    expect(result.docs).to.have.length(10);
+    expect(result.totalDocs).to.equal(50); // This fails with the bug - returns 10
+    expect(result.totalPages).to.equal(5);
+    expect(result.hasNextPage).to.equal(true);
   });
 });
 

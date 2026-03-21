@@ -95,11 +95,15 @@ function paginate(query, options, callback) {
   const isCallbackSpecified = typeof callback === 'function';
   const findOptions = options.options;
 
-  // Create countOptions with collation included to preserve session context in transactions
-  const countOptions =
+  // Create queryOptions with collation included to preserve session context in transactions
+  const queryOptions =
     Object.keys(collation).length > 0
       ? { ...findOptions, collation }
       : findOptions;
+
+  // For countDocuments, exclude limit/skip which MongoDB applies to the count result
+  // eslint-disable-next-line no-unused-vars
+  const { limit: _l, skip: _s, ...countOptions } = queryOptions || {};
 
   let offset;
   let page;
@@ -166,8 +170,8 @@ function paginate(query, options, callback) {
   }
 
   if (limit) {
-    // Use countOptions (which includes collation) to preserve session context in transactions
-    const mQuery = this[customFind](query, projection, countOptions);
+    // Use queryOptions (which includes collation) to preserve session context in transactions
+    const mQuery = this[customFind](query, projection, queryOptions);
 
     if (populate) {
       mQuery.populate(populate);
