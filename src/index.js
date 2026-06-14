@@ -55,6 +55,47 @@ const defaultOptions = {
   customFind: 'find',
 };
 
+function hasOwn(obj, key) {
+  return Object.prototype.hasOwnProperty.call(obj || {}, key);
+}
+
+function isSessionInTransaction(session) {
+  if (session == null) {
+    return false;
+  }
+
+  if (typeof session.inTransaction === 'function') {
+    return session.inTransaction();
+  }
+
+  // Older driver sessions may expose the driver session via `session.session`.
+  const driverSession = session.session;
+  if (driverSession && typeof driverSession.inTransaction === 'function') {
+    return driverSession.inTransaction();
+  }
+
+  // Pre-inTransaction drivers: conservatively serialize because we cannot
+  // determine whether the session is transactional. These drivers are too old
+  // to support causal sessions reliably anyway.
+  return true;
+}
+
+function hasActiveSession(model, queryOptions) {
+  if (hasOwn(queryOptions, 'session')) {
+    return isSessionInTransaction(queryOptions.session);
+  }
+
+  const base = model && model.db && model.db.base;
+  const als = base && base.transactionAsyncLocalStorage;
+
+  if (!als || typeof als.getStore !== 'function') {
+    return false;
+  }
+
+  const store = als.getStore();
+  return isSessionInTransaction(store && store.session);
+}
+
 function paginate(query, options, callback) {
   options = {
     ...defaultOptions,
@@ -169,9 +210,15 @@ function paginate(query, options, callback) {
     }
   }
 
-  if (limit) {
+  const model = this;
+
+  function buildDocsPromise() {
+    if (!limit) {
+      return Promise.resolve([]);
+    }
+
     // Use queryOptions (which includes collation) to preserve session context in transactions
-    const mQuery = this[customFind](query, projection, queryOptions);
+    const mQuery = model[customFind](query, projection, queryOptions);
 
     if (populate) {
       mQuery.populate(populate);
@@ -211,10 +258,10 @@ function paginate(query, options, callback) {
       console.error('Your MongoDB version does not support `allowDiskUse`.');
     }
 
-    docsPromise = mQuery.exec();
+    let execPromise = mQuery.exec();
 
     if (lean && leanWithId) {
-      docsPromise = docsPromise.then((docs) => {
+      execPromise = execPromise.then((docs) => {
         docs.forEach((doc) => {
           if (doc._id) {
             doc.id = String(doc._id);
@@ -223,87 +270,106 @@ function paginate(query, options, callback) {
         return docs;
       });
     }
+
+    return execPromise;
   }
 
-  return Promise.all([countPromise, docsPromise])
-    .then((values) => {
-      let count = values[0];
-      const docs = values[1];
+  function buildResult(count, docs) {
+    if (pagination !== true) {
+      count = docs.length;
+    }
 
-      if (pagination !== true) {
-        count = docs.length;
+    const meta = {
+      [labelTotal]: count,
+    };
+
+    let result;
+
+    if (typeof offset !== 'undefined') {
+      meta.offset = offset;
+      page = Math.ceil((offset + 1) / limit);
+    }
+
+    const pages = limit > 0 ? Math.ceil(count / limit) || 1 : null;
+
+    // Setting default values
+    if (labelLimit) meta[labelLimit] = count;
+    if (labelTotalPages) meta[labelTotalPages] = 1;
+    if (labelPage) meta[labelPage] = page;
+    if (labelPagingCounter) meta[labelPagingCounter] = (page - 1) * limit + 1;
+
+    if (labelHasPrevPage) meta[labelHasPrevPage] = false;
+    if (labelHasNextPage) meta[labelHasNextPage] = false;
+    if (labelPrevPage) meta[labelPrevPage] = null;
+    if (labelNextPage) meta[labelNextPage] = null;
+
+    if (pagination) {
+      if (labelLimit) meta[labelLimit] = limit;
+      if (labelTotalPages) meta[labelTotalPages] = pages;
+
+      // Set prev page
+      if (page > 1) {
+        if (labelHasPrevPage) meta[labelHasPrevPage] = true;
+        if (labelPrevPage) meta[labelPrevPage] = page - 1;
+      } else if (page == 1 && typeof offset !== 'undefined' && offset !== 0) {
+        if (labelHasPrevPage) meta[labelHasPrevPage] = true;
+        if (labelPrevPage) meta[labelPrevPage] = 1;
       }
 
-      const meta = {
-        [labelTotal]: count,
-      };
-
-      let result;
-
-      if (typeof offset !== 'undefined') {
-        meta.offset = offset;
-        page = Math.ceil((offset + 1) / limit);
+      // Set next page
+      if (page < pages) {
+        if (labelHasNextPage) meta[labelHasNextPage] = true;
+        if (labelNextPage) meta[labelNextPage] = page + 1;
       }
+    }
 
-      const pages = limit > 0 ? Math.ceil(count / limit) || 1 : null;
+    // Remove customLabels set to false
+    delete meta['false'];
 
-      // Setting default values
-      if (labelLimit) meta[labelLimit] = count;
+    if (limit == 0) {
+      if (labelLimit) meta[labelLimit] = 0;
       if (labelTotalPages) meta[labelTotalPages] = 1;
-      if (labelPage) meta[labelPage] = page;
-      if (labelPagingCounter) meta[labelPagingCounter] = (page - 1) * limit + 1;
-
-      if (labelHasPrevPage) meta[labelHasPrevPage] = false;
-      if (labelHasNextPage) meta[labelHasNextPage] = false;
+      if (labelPage) meta[labelPage] = 1;
+      if (labelPagingCounter) meta[labelPagingCounter] = 1;
       if (labelPrevPage) meta[labelPrevPage] = null;
       if (labelNextPage) meta[labelNextPage] = null;
+      if (labelHasPrevPage) meta[labelHasPrevPage] = false;
+      if (labelHasNextPage) meta[labelHasNextPage] = false;
+    }
 
-      if (pagination) {
-        if (labelLimit) meta[labelLimit] = limit;
-        if (labelTotalPages) meta[labelTotalPages] = pages;
+    if (labelMeta) {
+      result = {
+        [labelDocs]: docs,
+        [labelMeta]: meta,
+      };
+    } else {
+      result = {
+        [labelDocs]: docs,
+        ...meta,
+      };
+    }
 
-        // Set prev page
-        if (page > 1) {
-          if (labelHasPrevPage) meta[labelHasPrevPage] = true;
-          if (labelPrevPage) meta[labelPrevPage] = page - 1;
-        } else if (page == 1 && typeof offset !== 'undefined' && offset !== 0) {
-          if (labelHasPrevPage) meta[labelHasPrevPage] = true;
-          if (labelPrevPage) meta[labelPrevPage] = 1;
-        }
+    return result;
+  }
 
-        // Set next page
-        if (page < pages) {
-          if (labelHasNextPage) meta[labelHasNextPage] = true;
-          if (labelNextPage) meta[labelNextPage] = page + 1;
-        }
-      }
+  const hasSession = hasActiveSession(model, queryOptions);
 
-      // Remove customLabels set to false
-      delete meta['false'];
+  let resultPromise;
+  if (hasSession) {
+    resultPromise = Promise.resolve(countPromise).then((count) => {
+      return buildDocsPromise().then((docs) => {
+        return buildResult(count, docs);
+      });
+    });
+  } else {
+    docsPromise = buildDocsPromise();
+    resultPromise = Promise.all([countPromise, docsPromise]).then((values) => {
+      return buildResult(values[0], values[1]);
+    });
+  }
 
-      if (limit == 0) {
-        if (labelLimit) meta[labelLimit] = 0;
-        if (labelTotalPages) meta[labelTotalPages] = 1;
-        if (labelPage) meta[labelPage] = 1;
-        if (labelPagingCounter) meta[labelPagingCounter] = 1;
-        if (labelPrevPage) meta[labelPrevPage] = null;
-        if (labelNextPage) meta[labelNextPage] = null;
-        if (labelHasPrevPage) meta[labelHasPrevPage] = false;
-        if (labelHasNextPage) meta[labelHasNextPage] = false;
-      }
-
-      if (labelMeta) {
-        result = {
-          [labelDocs]: docs,
-          [labelMeta]: meta,
-        };
-      } else {
-        result = {
-          [labelDocs]: docs,
-          ...meta,
-        };
-      }
-
+  return resultPromise
+    .then((result) => {
       return isCallbackSpecified
         ? callback(null, result)
         : Promise.resolve(result);

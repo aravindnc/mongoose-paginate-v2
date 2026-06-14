@@ -5,6 +5,7 @@ let mongooseLeanVirtuals = require('mongoose-lean-virtuals');
 let expect = require('chai').expect;
 let assert = require('chai').assert;
 let mongoosePaginate = require('../dist/index');
+let mongoosePaginateSource = require('../src/index');
 let PaginationParameters = require('../dist/pagination-parameters');
 
 let MONGO_URI = 'mongodb://localhost/mongoose_paginate_test';
@@ -100,6 +101,49 @@ const testDescendingPrice = (result) => {
 
   expect(isSorted).to.be.true;
 };
+
+const controlledPromise = () => {
+  let resolve;
+  let reject;
+  const promise = new Promise((resolveFn, rejectFn) => {
+    resolve = resolveFn;
+    reject = rejectFn;
+  });
+
+  return {
+    promise,
+    resolve,
+    reject,
+  };
+};
+
+const stubQuery = (exec) => ({
+  populate() {
+    return this;
+  },
+  select() {
+    return this;
+  },
+  sort() {
+    return this;
+  },
+  lean() {
+    return this;
+  },
+  read() {
+    return this;
+  },
+  skip() {
+    return this;
+  },
+  limit() {
+    return this;
+  },
+  allowDiskUse() {
+    return this;
+  },
+  exec,
+});
 
 BookSchema.plugin(mongoosePaginate);
 
@@ -901,6 +945,387 @@ describe('mongoose-paginate', function () {
       throw err;
     } finally {
       await session.endSession();
+    }
+  });
+
+  it('paginate inside a transaction serializes count and docs when session is set', async function () {
+    // Transactions require a replica set
+    if (
+      !mongoose.connection.client.topology.description.type.includes(
+        'ReplicaSet'
+      )
+    ) {
+      this.skip();
+    }
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const query = {
+        title: {
+          $in: [/Book/i],
+        },
+      };
+
+      const options = {
+        limit: 10,
+        page: 1,
+        options: {
+          session: session,
+        },
+      };
+
+      const result = await Book.paginate(query, options);
+
+      expect(result.docs).to.have.length(10);
+      expect(result.totalDocs).to.equal(100);
+      expect(result.totalPages).to.equal(10);
+      expect(result.hasNextPage).to.equal(true);
+
+      await session.commitTransaction();
+    } catch (err) {
+      await session.abortTransaction();
+      throw err;
+    } finally {
+      await session.endSession();
+    }
+  });
+
+  it('paginate inside an implicit ALS transaction serializes count and docs', async function () {
+    // Transactions require a replica set
+    if (
+      !mongoose.connection.client.topology.description.type.includes(
+        'ReplicaSet'
+      )
+    ) {
+      this.skip();
+    }
+
+    const originalUseALS = mongoose.get('transactionAsyncLocalStorage');
+    mongoose.set('transactionAsyncLocalStorage', true);
+
+    try {
+      await mongoose.connection.transaction(async function () {
+        const query = {
+          title: {
+            $in: [/Book/i],
+          },
+        };
+
+        const options = {
+          limit: 10,
+          page: 1,
+        };
+
+        const store =
+          Book.db.base.transactionAsyncLocalStorage &&
+          Book.db.base.transactionAsyncLocalStorage.getStore();
+        expect(store).to.be.an('object');
+        expect(store.session).to.exist;
+
+        const result = await Book.paginate(query, options);
+
+        expect(result.docs).to.have.length(10);
+        expect(result.totalDocs).to.equal(100);
+        expect(result.totalPages).to.equal(10);
+        expect(result.hasNextPage).to.equal(true);
+      });
+    } finally {
+      mongoose.set('transactionAsyncLocalStorage', originalUseALS);
+    }
+  });
+
+  it('serializes count and docs when an explicit session is in a transaction', async function () {
+    const originalCountDocuments = Book.countDocuments;
+    const originalFind = Book.find;
+    const countControl = controlledPromise();
+    const docsControl = controlledPromise();
+    let countStarted = false;
+    let docsConstructed = false;
+    let docsStarted = false;
+
+    try {
+      Book.countDocuments = function () {
+        return {
+          exec() {
+            countStarted = true;
+            return countControl.promise;
+          },
+        };
+      };
+
+      Book.find = function () {
+        docsConstructed = true;
+        return stubQuery(function () {
+          docsStarted = true;
+          return docsControl.promise;
+        });
+      };
+
+      const resultPromise = mongoosePaginateSource.paginate.call(
+        Book,
+        { title: 'Serialized explicit session' },
+        {
+          limit: 10,
+          page: 1,
+          options: {
+            session: {
+              id: 'explicit-session',
+              inTransaction() {
+                return true;
+              },
+            },
+          },
+        }
+      );
+
+      expect(countStarted).to.equal(true);
+      expect(docsConstructed).to.equal(false);
+      expect(docsStarted).to.equal(false);
+
+      await Promise.resolve();
+
+      expect(docsConstructed).to.equal(false);
+      expect(docsStarted).to.equal(false);
+
+      countControl.resolve(1);
+      await Promise.resolve();
+
+      expect(docsConstructed).to.equal(true);
+      expect(docsStarted).to.equal(true);
+
+      docsControl.resolve([{ title: 'Serialized explicit session' }]);
+      const result = await resultPromise;
+
+      expect(result.totalDocs).to.equal(1);
+      expect(result.docs).to.have.length(1);
+    } finally {
+      Book.countDocuments = originalCountDocuments;
+      Book.find = originalFind;
+    }
+  });
+
+  it('keeps count and docs parallel when an explicit session is not in a transaction', async function () {
+    const originalCountDocuments = Book.countDocuments;
+    const originalFind = Book.find;
+    const countControl = controlledPromise();
+    const docsControl = controlledPromise();
+    let countStarted = false;
+    let docsStarted = false;
+
+    try {
+      Book.countDocuments = function () {
+        return {
+          exec() {
+            countStarted = true;
+            return countControl.promise;
+          },
+        };
+      };
+
+      Book.find = function () {
+        return stubQuery(function () {
+          docsStarted = true;
+          return docsControl.promise;
+        });
+      };
+
+      const resultPromise = mongoosePaginateSource.paginate.call(
+        Book,
+        { title: 'Parallel explicit session' },
+        {
+          limit: 10,
+          page: 1,
+          options: {
+            session: {
+              id: 'explicit-causal-session',
+              inTransaction() {
+                return false;
+              },
+            },
+          },
+        }
+      );
+
+      expect(countStarted).to.equal(true);
+      expect(docsStarted).to.equal(true);
+
+      countControl.resolve(2);
+      docsControl.resolve([
+        { title: 'Parallel explicit session 1' },
+        { title: 'Parallel explicit session 2' },
+      ]);
+      const result = await resultPromise;
+
+      expect(result.totalDocs).to.equal(2);
+      expect(result.docs).to.have.length(2);
+    } finally {
+      Book.countDocuments = originalCountDocuments;
+      Book.find = originalFind;
+    }
+  });
+
+  it('serializes count and docs when an implicit ALS session is in a transaction', async function () {
+    const originalCountDocuments = Book.countDocuments;
+    const originalFind = Book.find;
+    const base = Book.db.base;
+    const hadTransactionAsyncLocalStorage =
+      Object.prototype.hasOwnProperty.call(
+        base,
+        'transactionAsyncLocalStorage'
+      );
+    const originalTransactionAsyncLocalStorage =
+      base.transactionAsyncLocalStorage;
+    const countControl = controlledPromise();
+    const docsControl = controlledPromise();
+    let countStarted = false;
+    let docsConstructed = false;
+    let docsStarted = false;
+
+    try {
+      base.transactionAsyncLocalStorage = {
+        getStore() {
+          return {
+            session: {
+              id: 'implicit-session',
+              inTransaction() {
+                return true;
+              },
+            },
+          };
+        },
+      };
+
+      Book.countDocuments = function () {
+        return {
+          exec() {
+            countStarted = true;
+            return countControl.promise;
+          },
+        };
+      };
+
+      Book.find = function () {
+        docsConstructed = true;
+        return stubQuery(function () {
+          docsStarted = true;
+          return docsControl.promise;
+        });
+      };
+
+      const resultPromise = mongoosePaginateSource.paginate.call(
+        Book,
+        { title: 'Serialized implicit session' },
+        {
+          limit: 10,
+          page: 1,
+        }
+      );
+
+      expect(countStarted).to.equal(true);
+      expect(docsConstructed).to.equal(false);
+      expect(docsStarted).to.equal(false);
+
+      await Promise.resolve();
+
+      expect(docsConstructed).to.equal(false);
+      expect(docsStarted).to.equal(false);
+
+      countControl.resolve(1);
+      await Promise.resolve();
+
+      expect(docsConstructed).to.equal(true);
+      expect(docsStarted).to.equal(true);
+
+      docsControl.resolve([{ title: 'Serialized implicit session' }]);
+      const result = await resultPromise;
+
+      expect(result.totalDocs).to.equal(1);
+      expect(result.docs).to.have.length(1);
+    } finally {
+      Book.countDocuments = originalCountDocuments;
+      Book.find = originalFind;
+
+      if (hadTransactionAsyncLocalStorage) {
+        base.transactionAsyncLocalStorage =
+          originalTransactionAsyncLocalStorage;
+      } else {
+        delete base.transactionAsyncLocalStorage;
+      }
+    }
+  });
+
+  it('starts count and docs in parallel when no session is active', async function () {
+    const originalCountDocuments = Book.countDocuments;
+    const originalFind = Book.find;
+    const base = Book.db.base;
+    const hadTransactionAsyncLocalStorage =
+      Object.prototype.hasOwnProperty.call(
+        base,
+        'transactionAsyncLocalStorage'
+      );
+    const originalTransactionAsyncLocalStorage =
+      base.transactionAsyncLocalStorage;
+    const countControl = controlledPromise();
+    const docsControl = controlledPromise();
+    let countStarted = false;
+    let docsStarted = false;
+
+    try {
+      base.transactionAsyncLocalStorage = {
+        getStore() {
+          return null;
+        },
+      };
+
+      Book.countDocuments = function () {
+        return {
+          exec() {
+            countStarted = true;
+            return countControl.promise;
+          },
+        };
+      };
+
+      Book.find = function () {
+        return stubQuery(function () {
+          docsStarted = true;
+          return docsControl.promise;
+        });
+      };
+
+      const resultPromise = mongoosePaginateSource.paginate.call(
+        Book,
+        { title: 'Parallel no session' },
+        {
+          limit: 10,
+          page: 1,
+        }
+      );
+
+      expect(countStarted).to.equal(true);
+      expect(docsStarted).to.equal(true);
+
+      countControl.resolve(2);
+      docsControl.resolve([
+        { title: 'Parallel no session 1' },
+        { title: 'Parallel no session 2' },
+      ]);
+      const result = await resultPromise;
+
+      expect(result.totalDocs).to.equal(2);
+      expect(result.docs).to.have.length(2);
+    } finally {
+      Book.countDocuments = originalCountDocuments;
+      Book.find = originalFind;
+
+      if (hadTransactionAsyncLocalStorage) {
+        base.transactionAsyncLocalStorage =
+          originalTransactionAsyncLocalStorage;
+      } else {
+        delete base.transactionAsyncLocalStorage;
+      }
     }
   });
 
