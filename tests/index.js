@@ -9,6 +9,7 @@ let mongoosePaginateSource = require('../src/index');
 let PaginationParameters = require('../dist/pagination-parameters');
 
 let MONGO_URI = 'mongodb://localhost/mongoose_paginate_test';
+// let MONGO_URI = 'mongodb://localhost/mongoose_paginate_test?replicaSet=rs0';
 
 let UserSchema = new mongoose.Schema({
   name: String,
