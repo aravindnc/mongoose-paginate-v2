@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.9.5
+
+[2026-06-18]
+
+- Fix: serialize pagination queries in transactions (#242)
+
 ## v1.9.4
 
 [2026-03-24]
